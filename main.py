@@ -2,17 +2,10 @@ import numpy as np
 import pandas as pd
 from math import sqrt,exp
 from numba import jit
+import time
 
 
 
-odwr_t = 2
-sigma = 0.3
-S_0 = 50
-r = 0.02
-K = 48
-T = 2
-opcja = "a" # "e" lub "a"
-wersja = "put" # "call" lub "put"
 
 @jit
 def policz_payoff_w_kazdej_chwili(n,u,d,S_0,K,wersja):
@@ -43,9 +36,10 @@ def policz_cala_maciez(matrix_do_licz,c_p,r,t,p,opcja):
             S =  exp(-r*t)*(p*matrix_do_licz[:i,i]+q*matrix_do_licz[1:(i+1), i])
             matrix_do_licz[:i, i-1] = np.maximum(S , c_p[:i, i-1])
 
-
+#opcja "a" lub "e"
+#wesrja "put" lub "call"
 @jit
-def policz(opcja):
+def policz(odwr_t = 2,sigma = 0.3,S_0 = 50,r = 0.02,K = 48,T = 2,opcja = "a",wersja = "put"):
     t = 1/odwr_t
     n = T*odwr_t
     u = exp(sigma*sqrt(t))
@@ -68,7 +62,9 @@ def policz(opcja):
     print(matrix_do_liczenia)
     print(cena_payoff)
 
-  #  policz_cene_w_kazdej_chwili(n,u,d,S_0)
 
 policz(opcja = "e")
 policz(opcja = "a")
+
+
+
