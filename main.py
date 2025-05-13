@@ -101,20 +101,46 @@ def zrob_nazwe_do_danych(O_t  = [2,3],Sigmas = [0.3,0.35],S_0s = [50,51],Rs = [0
     return nazwa
 
 @jit
-def policz_dla_roznych_danych(O_t  = [2,3],Sigmas = [0.3,0.35],S_0s = [50,51],Rs = [0.02,0.03],
-                              Ks = [48,49],Ts = [2,3],opcja = "a",wersja = "put"):
-    dane = np.empty((0,8))
+def policz_dla_roznych_danych(O_t,Sigmas,S_0s,Rs,Ks,Ts,opcja,wersja):
+    total = len(O_t) * len(Sigmas) * len(S_0s) * len(Rs) * len(Ks) * len(Ts)
+    dane = np.zeros((total, 8))
+    idx = 0
     for odw_t in O_t:
         for sigma in Sigmas:
             for S_0 in S_0s:
                 for r in Rs:
                     for K in Ks:
                         for T in Ts:
-                            newrow = np.zeros((1,8))
-                            newrow[0,:] = np.array([policz(odw_t,sigma,S_0,r,K,T,opcja,wersja)[0,0],odw_t,1/odw_t,sigma,
-                                      S_0,r,K,T])
-                            dane = np.append(dane, newrow, axis=0)
+                            result = policz(odw_t, sigma, S_0, r, K, T, opcja, wersja)
+                            dane[idx, :] = np.array([
+                                result[0, 0], odw_t, 1.0 / odw_t, sigma,
+                                S_0, r, K, T
+                            ])
+                            idx += 1
     return dane
 
 
-print(policz_dla_roznych_danych())
+
+
+def policz_dane_i_zapisz(O_t,Sigmas,S_0s,Rs,Ks,Ts):
+    df = pd.DataFrame(pd.DataFrame(columns=['cena_opcji','odw_t','t','sigma','S_0','r','K','T','opcja','wersja']))
+    for opcja in ["a","e"]:
+        for wersja in ["call","put"]:
+            df1 = pd.DataFrame(policz_dla_roznych_danych(O_t, Sigmas, S_0s, Rs, Ks, Ts,opcja,wersja),
+                               columns=['cena_opcji','odw_t','t','sigma','S_0','r','K','T'])
+
+            df1['opcja'] = opcja
+            df1['wersja'] = wersja
+            df = pd.concat([df,df1])
+    nazwa = zrob_nazwe_do_danych(O_t,Sigmas,S_0s,Rs,Ks,Ts)
+    df.to_csv(f"dane/{nazwa}", index=False)
+
+O_t = np.array([2])
+Sigmas = np.array([0.3])
+S_0s = np.arange(45,55,0.5)
+Rs = np.array([0.02])
+Ks = np.array([48])
+Ts = np.array([2])
+
+
+policz_dane_i_zapisz(O_t, Sigmas, S_0s, Rs, Ks, Ts)
