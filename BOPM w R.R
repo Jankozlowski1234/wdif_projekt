@@ -92,7 +92,7 @@ option_values_from_bopm = function(expiration_time, t, sigma, S, K, r, option_ty
   p = (exp(r*t) - 1/u)/(u - 1/u)
   
   # macierz zawierajaca wartosci opcji wynikajace z modelu
-  result_matrix = matrix(numeric((n + 1)^2), nrow=(n + 1))
+  result_matrix = matrix(rep(NA, (n + 1)^2), nrow=(n + 1))
   
   # w przypadku opcji europejskiej nie mamy mozliwosci przedterminowego wykonania opcji;
   # wartosc w kazdym wezle jest wartoscia oczekiwana przyszlej wartosci opcji
@@ -129,7 +129,7 @@ option_values_from_bopm = function(expiration_time, t, sigma, S, K, r, option_ty
     
     # macierz zawierajaca informacje dotyczaca oplacalnosci przedwczesnego wykonania opcji
     # 1 jesli w danym momencie oplaca sie wykonac opcje, 0 w przeciwnym przypadku
-    decision_matrix = matrix(numeric((n + 1)^2), nrow=(n + 1))
+    decision_matrix = matrix(rep(NA, (n + 1)^2), nrow=(n + 1))
     
     # opcja typu call, wartosc wewnetrzna opcji = max(S - K, 0)
     if (option_type == 'call') {
@@ -142,6 +142,7 @@ option_values_from_bopm = function(expiration_time, t, sigma, S, K, r, option_ty
             if (exp(-r*t)*(p*result_matrix[k, i + 1] + (1 - p)*result_matrix[k + 1, i + 1]) < underlying_asset_prices_matrix[k, i] - K) {
               decision_matrix[k, i] = 1
             }
+            else {decision_matrix[k, i] = 0}
           }
         }
       }
@@ -164,6 +165,7 @@ option_values_from_bopm = function(expiration_time, t, sigma, S, K, r, option_ty
             if (exp(-r*t)*(p*result_matrix[k, i + 1] + (1 - p)*result_matrix[k + 1, i + 1]) < K - underlying_asset_prices_matrix[k, i]) {
               decision_matrix[k, i] = 1
             }
+            else {decision_matrix[k, i] = 0}
           }
         }
       }
