@@ -123,7 +123,7 @@ def policz_dla_roznych_danych(O_t,Sigmas,S_0s,Rs,Ks,Ts,opcja,wersja):
 
 
 def policz_dane_i_zapisz(O_t,Sigmas,S_0s,Rs,Ks,Ts):
-    df = pd.DataFrame(pd.DataFrame(columns=['cena_opcji','odw_t','t','sigma','S_0','r','K','T','opcja','wersja']))
+    df = pd.DataFrame(columns=['cena_opcji','odw_t','t','sigma','S_0','r','K','T','opcja','wersja'])
     for opcja in ["a","e"]:
         for wersja in ["call","put"]:
             df1 = pd.DataFrame(policz_dla_roznych_danych(O_t, Sigmas, S_0s, Rs, Ks, Ts,opcja,wersja),
@@ -135,12 +135,44 @@ def policz_dane_i_zapisz(O_t,Sigmas,S_0s,Rs,Ks,Ts):
     nazwa = zrob_nazwe_do_danych(O_t,Sigmas,S_0s,Rs,Ks,Ts)
     df.to_csv(f"dane/{nazwa}", index=False)
 
-O_t = np.array([2])
+O_t = np.array([12])
 Sigmas = np.array([0.3])
-S_0s = np.arange(45,55,0.5)
+S_0s = np.array([50])
 Rs = np.array([0.02])
 Ks = np.array([48])
 Ts = np.array([2])
 
 
-policz_dane_i_zapisz(O_t, Sigmas, S_0s, Rs, Ks, Ts)
+#policz_dane_i_zapisz(O_t, Sigmas, S_0s, Rs, Ks, Ts)
+
+
+
+def policz_czas_liczenia_raz(odw_t,sigma,S_0,r,K,T,opcja,wersja):
+    start = time.time()
+    policz(odw_t,sigma,S_0,r,K,T,opcja,wersja)
+    end = time.time()
+    return end - start
+
+
+def zbadaj_ile_liczy_srednio(O_t,sigma,S_0,r,K,T,opcja,wersja,N = 100):
+    df = pd.DataFrame(columns=['sredni_czas', 'odw_t', 't', 'sigma', 'S_0', 'r', 'K', 'T', 'opcja', 'wersja'])
+    policz_czas_liczenia_raz(O_t[0], sigma, S_0, r, K, T, opcja, wersja)
+    for odw_t in O_t:
+        sr = np.array([policz_czas_liczenia_raz(odw_t,sigma,S_0,r,K,T,opcja,wersja) for _ in range(N)])
+        srednia = np.mean(sr)
+
+        df1 = pd.DataFrame(columns=['sredni_czas', 'odw_t', 't', 'sigma', 'S_0', 'r', 'K', 'T', 'opcja', 'wersja'])
+        df1.loc[0] = [srednia,odw_t,1/odw_t,sigma,S_0,r,K,T,opcja,wersja]
+        df = pd.concat([df, df1])
+    return df
+
+def zbadaj_ile_liczy_srednio_wszystkie_mozliwosci(O_t,sigma,S_0,r,K,T,N = 100):
+    df = pd.DataFrame(columns=['sredni_czas', 'odw_t', 't', 'sigma', 'S_0', 'r', 'K', 'T', 'opcja', 'wersja'])
+    for opcja in ["a","e"]:
+        for wersja in ["call","put"]:
+            df1 = zbadaj_ile_liczy_srednio(O_t,sigma,S_0,r,K,T,opcja,wersja,N)
+            df = pd.concat([df, df1])
+    return df
+
+
+print(zbadaj_ile_liczy_srednio_wszystkie_mozliwosci([100,500,1000],0.03,50,0.02,48,2,N = 4))
