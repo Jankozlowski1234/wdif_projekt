@@ -1,7 +1,11 @@
+import warnings
+warnings.simplefilter(action='ignore', category=FutureWarning)
+
 import numpy as np
 import pandas as pd
 from math import sqrt,exp
 from numba import jit
+from copy import deepcopy
 import time
 
 
@@ -135,12 +139,39 @@ def policz_dane_i_zapisz(O_t,Sigmas,S_0s,Rs,Ks,Ts):
     nazwa = zrob_nazwe_do_danych(O_t,Sigmas,S_0s,Rs,Ks,Ts)
     df.to_csv(f"dane/{nazwa}", index=False)
 
-O_t = np.array([12])
-Sigmas = np.array([0.3])
-S_0s = np.array([50])
-Rs = np.array([0.02])
-Ks = np.array([48])
-Ts = np.array([2])
+odwr_t = np.array([12])
+sigma = np.array([0.3])
+S_0 = np.array([50])
+r = np.array([0.02])
+K = np.array([48])
+T = np.array([2])
+
+
+
+
+O_t = np.arange(2, 100, 2)
+Sigmas = np.arange(0.05, 0.35, 0.05)
+S_0s = np.arange(30, 80, 1)
+Rs = np.arange(-0.03,0.2, 0.01)
+Ks = np.arange(30, 80, 1)
+Ts = np.arange(1,100,1)
+
+# O_t = np.array([12,13])
+# Sigmas = np.array([0.3,0.4])
+# S_0s = np.array([50,51])
+# Rs = np.array([0.02,0.03])
+# Ks = np.array([48,49])
+# Ts = np.array([2,3])
+
+
+
+pojedyncze = [O_t,sigma,S_0,r,K,Ts]
+wielokrotne = [O_t,Sigmas,S_0s,Rs,Ks,Ts]
+
+
+co_liczymy = deepcopy(pojedyncze)
+policz_dane_i_zapisz(co_liczymy[0], co_liczymy[1], co_liczymy[2], co_liczymy[3], co_liczymy[4], co_liczymy[5])
+
 
 
 #policz_dane_i_zapisz(O_t, Sigmas, S_0s, Rs, Ks, Ts)
@@ -175,4 +206,4 @@ def zbadaj_ile_liczy_srednio_wszystkie_mozliwosci(O_t,sigma,S_0,r,K,T,N = 100):
     return df
 
 
-print(zbadaj_ile_liczy_srednio_wszystkie_mozliwosci([100,500,1000],0.03,50,0.02,48,2,N = 4))
+#print(zbadaj_ile_liczy_srednio_wszystkie_mozliwosci([100,500,1000],0.03,50,0.02,48,2,N = 4))
