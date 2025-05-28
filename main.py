@@ -206,9 +206,9 @@ def zbadaj_ile_liczy_srednio_wszystkie_mozliwosci(O_t,sigma,S_0,r,K,T,N = 100):
             df1 = zbadaj_ile_liczy_srednio(O_t,sigma,S_0,r,K,T,opcja,wersja,N)
             df = pd.concat([df, df1])
     return df
-
-df = zbadaj_ile_liczy_srednio_wszystkie_mozliwosci(np.arange(1,1000,20),0.03,50,0.02,48,2,N = 100)
-df.to_csv(f"dane/dlugosc_liczenia.csv", index=False)
+N = 100
+df = zbadaj_ile_liczy_srednio_wszystkie_mozliwosci(np.arange(1,300,1),0.03,50,0.02,48,2,N = N)
+df.to_csv(f"dane/dlugosc_liczenia_N_{N}.csv", index=False)
 
 #<<<<<<< HEAD
 #=======
