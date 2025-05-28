@@ -3,6 +3,16 @@ library(dplyr)
 
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
+czas<-read.csv("./dane/dlugosc_liczenia.csv",
+               header = T,sep = ",")
+czas$wersja<-paste(czas$opcja,czas$wersja,sep = ",")
+
+ggplot(czas,aes(x= odw_t,y = sredni_czas,col = wersja))+geom_line()+
+  labs(title="Sredni czas liczenia ceny opcji",
+       subtitle = "dla różnych 1/t",x="1/t",y="sredni czas")+
+  theme(plot.title = element_text(hjust = 0.5),
+        plot.subtitle = element_text(hjust = 0.5))
+ggsave("sredni_czas.pdf",path  = "./wykresy")
 
 
 
@@ -32,6 +42,14 @@ subset(d_r_ot,d_r_ot$wersja=="call") %>%
   theme(plot.title = element_text(hjust = 0.5))
 ggsave("c_r_ot.pdf",path  = "./wykresy")
 
+subset(d_r_ot) %>%
+  ggplot(aes(x=  t,y = cena_opcji,col = opcja))+geom_line()+
+  labs(title="Cena opcji put i call dla roznych t",x="t",y="cena opcji",
+       subtitle = "z podziałem na opcje amerykańskie i europejskie")+
+  theme(plot.title = element_text(hjust = 0.5),
+        plot.subtitle = element_text(hjust = 0.5))+facet_wrap(~wersja)
+ggsave("d_r_ot.pdf",path  = "./wykresy")
+
 #d_r_s
 subset(d_r_s,d_r_s$wersja=="put") %>%
   ggplot(aes(x=  sigma,y = cena_opcji,col = opcja))+geom_line()+
@@ -44,6 +62,14 @@ subset(d_r_s,d_r_s$wersja=="call") %>%
   labs(title="Cena opcji call dla roznych sigma",x="sigma",y="cena opcji")+
   theme(plot.title = element_text(hjust = 0.5))
 ggsave("c_r_s.pdf",path  = "./wykresy")
+
+subset(d_r_s) %>%
+  ggplot(aes(x=  sigma,y = cena_opcji,col = opcja))+geom_line()+
+  labs(title="Cena opcji put i call dla roznych sigma",x="sigma",y="cena opcji",
+       subtitle = "z podziałem na opcje amerykańskie i europejskie")+
+  theme(plot.title = element_text(hjust = 0.5),
+        plot.subtitle = element_text(hjust = 0.5))+facet_wrap(~wersja)
+ggsave("d_r_s.pdf",path  = "./wykresy")
 
 #d_r_S0
 subset(d_r_S0,d_r_S0$wersja=="put") %>%
@@ -59,6 +85,14 @@ subset(d_r_S0,d_r_S0$wersja=="call") %>%
 ggsave("c_r_S0.pdf",path  = "./wykresy")
 
 
+subset(d_r_S0) %>%
+  ggplot(aes(x=  S_0,y = cena_opcji,col = opcja))+geom_line()+
+  labs(title="Cena opcji put i call dla roznych S_0",x="S_0",y="cena opcji",
+       subtitle = "z podziałem na opcje amerykańskie i europejskie")+
+  theme(plot.title = element_text(hjust = 0.5),
+        plot.subtitle = element_text(hjust = 0.5))+facet_wrap(~wersja)
+ggsave("d_r_S0.pdf",path  = "./wykresy")
+
 #d_r_r
 subset(d_r_r,d_r_r$wersja=="put") %>%
   ggplot(aes(x=  r,y = cena_opcji,col = opcja))+geom_line()+
@@ -71,6 +105,14 @@ subset(d_r_r,d_r_r$wersja=="call") %>%
   labs(title="Cena opcji call dla roznych r",x="r",y="cena opcji")+
   theme(plot.title = element_text(hjust = 0.5))
 ggsave("c_r_r.pdf",path  = "./wykresy")
+
+subset(d_r_r) %>%
+  ggplot(aes(x=  r,y = cena_opcji,col = opcja))+geom_line()+
+  labs(title="Cena opcji put i call dla roznych r",x="r",y="cena opcji",
+       subtitle = "z podziałem na opcje amerykańskie i europejskie")+
+  theme(plot.title = element_text(hjust = 0.5),
+        plot.subtitle = element_text(hjust = 0.5))+facet_wrap(~wersja)
+ggsave("d_r_r.pdf",path  = "./wykresy")
 
 #d_r_K
 subset(d_r_K,d_r_K$wersja=="put") %>%
@@ -85,6 +127,15 @@ subset(d_r_K,d_r_K$wersja=="call") %>%
   theme(plot.title = element_text(hjust = 0.5))
 ggsave("c_r_K.pdf",path  = "./wykresy")
 
+
+subset(d_r_K) %>%
+  ggplot(aes(x=  K,y = cena_opcji,col = opcja))+geom_line()+
+  labs(title="Cena opcji put i call dla roznych K",x="K",y="cena opcji",
+       subtitle = "z podziałem na opcje amerykańskie i europejskie")+
+  theme(plot.title = element_text(hjust = 0.5),
+        plot.subtitle = element_text(hjust = 0.5))+facet_wrap(~wersja)
+ggsave("d_r_K.pdf",path  = "./wykresy")
+
 #d_r_T
 
 subset(d_r_T,d_r_T$wersja=="put") %>%
@@ -98,6 +149,14 @@ subset(d_r_T,d_r_T$wersja=="call") %>%
   labs(title="Cena opcji call dla roznych T",x="T",y="cena opcji")+
   theme(plot.title = element_text(hjust = 0.5))
 ggsave("c_r_T.pdf",path  = "./wykresy")
+
+subset(d_r_T) %>%
+  ggplot(aes(x=  T,y = cena_opcji,col = opcja))+geom_line()+
+  labs(title="Cena opcji put i call dla roznych T",x="T",y="cena opcji",
+       subtitle = "z podziałem na opcje amerykańskie i europejskie")+
+  theme(plot.title = element_text(hjust = 0.5),
+        plot.subtitle = element_text(hjust = 0.5))+facet_wrap(~wersja)
+ggsave("d_r_T.pdf",path  = "./wykresy")
 
 
 

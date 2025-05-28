@@ -18,6 +18,7 @@ library(reshape2)
 library(ggplot2)
 require(gridExtra)
 library(grid)
+library(kableExtra)
 source("BOPM w R.R")
 ```
 
@@ -260,6 +261,17 @@ W następnych dwóch podrozdziałach przeanalizujemy wpływ zmiany pojedynczego 
 
 
 
+
+```{r, include=TRUE ,warning=FALSE, message=FALSE, echo=FALSE}
+do_zapisywania<-data.frame(matrix(ncol = 3,nrow = 3))
+colnames(do_zapisywania)<-c("nazwa pliku","nazwa funkcji","parametry")
+rownames(do_zapisywania)<-c("Wykres 1","Wykres 2","Wykres 3")
+do_zapisywania[1,]<-c("wyniki_zad1.csv","policz_i_zapisz_wyniki_zad1","n=1000,k=1000")
+do_zapisywania[2,]<-c("wyniki_zad2_n_1000.csv","read_numbers_and_save_p_values","n=1000")
+do_zapisywania[3,]<-c("wyniki_zad2_n_5000.csv","read_numbers_and_save_p_values","n=5000")
+kable(do_zapisywania)
+
+```
 
 
 
