@@ -248,10 +248,16 @@ W następnych dwóch podrozdziałach przeanalizujemy wpływ zmiany pojedynczego 
 
 
 # Analiza składu portfela zabezpieczającego
-
-[...]
-
-
+Na poniższym wykresie przedstawiono zmiany wartości delty w funkcji czasu oraz poziomu drzewa binarnego, odpowiadającego liczbie wzrostów ceny aktywa bazowego. Wartość delty odzwierciedla liczbę jednostek instrumentu bazowego (np. akcji), 
+które należy utrzymywać w portfelu, aby skutecznie zabezpieczyć się przed ryzykiem zmian ceny aktywa. 
+Innymi słowy, delta określa nachylenie zależności między wartością portfela replikującego a ceną instrumentu bazowego.
+```{r, echo=FALSE, out.width="75%", fig.align='center'}
+knitr::include_graphics("wykres_delta.png")
+```
+W przypadku opcji typu put, jak w analizowanym przykładzie, wartości delty są zazwyczaj ujemne — oznacza to, że dla zreplikowania opcji inwestor powinien przyjąć pozycję krótką na akcjach. Można również zaobserwować, że delta maleje (czyli staje się bardziej ujemna) 
+w sytuacjach spadków cen instrumentu bazowego. To zgodne z intuicją: im niższa cena akcji, tym większa wartość opcji put, co wymusza większe zabezpieczenie przez pozycję przeciwną.
+Wraz z upływem czasu, czyli w miarę zbliżania się do terminu wygaśnięcia opcji, wartości delty stają się bardziej ekstremalne — to znaczy bardziej zbliżają się do -1 lub 0. Jest to efektem rosnącej wrażliwości 
+wartości opcji na zmiany ceny aktywa w ostatnich momentach życia opcji. Taka dynamika wymusza częstsze i bardziej znaczące dostosowania pozycji w portfelu, co pokazuje rosnące wyzwania związane z praktycznym stosowaniem strategii delta-hedgingu w końcowych etapach życia opcji.
 
 
 

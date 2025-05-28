@@ -7,7 +7,9 @@ from math import sqrt,exp
 from numba import jit
 from copy import deepcopy
 import time
-
+import matplotlib.pyplot as plt
+import seaborn as sns
+import matplotlib.ticker as ticker
 
 
 
@@ -210,6 +212,7 @@ df.to_csv(f"dane/dlugosc_liczenia.csv", index=False)
 
 #<<<<<<< HEAD
 #=======
+# ==== hedging
 def policz_delte(matrix_do_liczenia, cena_payoff, r, t, p, u, d, S_0, opcja):
     n = matrix_do_liczenia.shape[1] - 1
     delty = np.zeros((n+1, n+1))
@@ -269,6 +272,15 @@ def policz_z_delta(odwr_t = 2, sigma = 0.3, S_0 = 50, r = 0.02, K = 48, T = 2, o
     return pd.DataFrame(dane)
 
 
+def narysuj_heatmape_delt(df):
+    pivot = df.pivot(index="poziom", columns="czas", values="delta")
+    plt.figure(figsize=(12, 6))
+    ax = sns.heatmap(pivot, cmap="coolwarm", center=0, annot=False, cbar_kws={'label': 'Delta'})
+    ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f"{x:.1f}"))
+    plt.title("Mapa ciepła wartości ∆ (delta) w czasie i pozycjach drzewa")
+    plt.xlabel("Czas (lata)")
+    plt.ylabel("Poziom drzewa")
+    plt.tight_layout()
+    plt.show()
 #print(policz_z_delta())
-#>>>>>>> 1a522e650b97dbbb46c7776e224aa8762a76759d
 #print(zbadaj_ile_liczy_srednio_wszystkie_mozliwosci([100,500,1000],0.03,50,0.02,48,2,N = 4))
