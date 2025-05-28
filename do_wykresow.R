@@ -2,10 +2,245 @@ library(ggplot2)
 library(dplyr)
 
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
-dane_rozne_S_0<-read.csv("./dane/dane_odwr_t_12_sigma_0.3_S_0_50_r_0.02_K_48_T_2_.csv",
-                         header = T,sep = ",")
 
 
-subset(dane_rozne_S_0,dane_rozne_S_0$wersja=="put") %>%
-  ggplot(aes(x=  S_0,y = cena_opcji,col = opcja))+geom_line()
-subset(dane_rozne_S_0,dane_rozne_S_0$wersja=="call"&dane_rozne_S_0$S_0 ==50)
+
+
+d_r_ot<-read.csv("./dane/dane_odwr_t_od_2_do_98_sigma_0.3_S_0_50_r_0.02_K_48_T_2_.csv",
+                header = T,sep = ",")
+d_r_s<-read.csv("./dane/dane_odwr_t_12_sigma_od_0.05_do0.3_S_0_50_r_0.02_K_48_T_2_.csv",
+                header = T,sep = ",")
+d_r_S0<-read.csv("./dane/dane_odwr_t_12_sigma_0.3_S_0_od_30_do_79_r_0.02_K_48_T_2_.csv",
+                 header = T,sep = ",")
+d_r_r<-read.csv("./dane/dane_odwr_t_12_sigma_0.3_S_0_50_r_od_-0.03_do_0.19000000000000003_K_48_T_2_.csv",
+                header = T,sep = ",")
+d_r_K<-read.csv("./dane/dane_odwr_t_12_sigma_0.3_S_0_50_r_0.02_K_od_30_do_79_T_2_.csv",
+                header = T,sep = ",")
+d_r_T<-read.csv("./dane/dane_odwr_t_12_sigma_0.3_S_0_50_r_0.02_K_48_T_od_1_do_99_.csv",
+                header = T,sep = ",")
+#d_r_ot
+
+subset(d_r_ot,d_r_ot$wersja=="put") %>%
+  ggplot(aes(x=  t,y = cena_opcji,col = opcja))+geom_line()+
+  labs(title="Cena opcji put dla roznych t",x="t",y="cena opcji")+
+  theme(plot.title = element_text(hjust = 0.5))
+ggsave("p_r_ot.pdf",path  = "./wykresy")
+
+subset(d_r_ot,d_r_ot$wersja=="call") %>%
+  ggplot(aes(x=  t,y = cena_opcji,col = opcja))+geom_line()+
+  labs(title="Cena opcji call dla roznych t",x="t",y="cena opcji")+
+  theme(plot.title = element_text(hjust = 0.5))
+ggsave("c_r_ot.pdf",path  = "./wykresy")
+
+#d_r_s
+subset(d_r_s,d_r_s$wersja=="put") %>%
+  ggplot(aes(x=  sigma,y = cena_opcji,col = opcja))+geom_line()+
+  labs(title="Cena opcji put dla roznych sigma",x="sigma",y="cena opcji")+
+  theme(plot.title = element_text(hjust = 0.5))
+ggsave("p_r_s.pdf",path  = "./wykresy")
+
+subset(d_r_s,d_r_s$wersja=="call") %>%
+  ggplot(aes(x=  sigma,y = cena_opcji,col = opcja))+geom_line()+
+  labs(title="Cena opcji call dla roznych sigma",x="sigma",y="cena opcji")+
+  theme(plot.title = element_text(hjust = 0.5))
+ggsave("c_r_s.pdf",path  = "./wykresy")
+
+#d_r_S0
+subset(d_r_S0,d_r_S0$wersja=="put") %>%
+  ggplot(aes(x=  S_0,y = cena_opcji,col = opcja))+geom_line()+
+  labs(title="Cena opcji put dla roznych S_0",x="S_0",y="cena opcji")+
+  theme(plot.title = element_text(hjust = 0.5))
+ggsave("p_r_S0.pdf",path  = "./wykresy")
+
+subset(d_r_S0,d_r_S0$wersja=="call") %>%
+  ggplot(aes(x=  S_0,y = cena_opcji,col = opcja))+geom_line()+
+  labs(title="Cena opcji call dla roznych S_0",x="S_0",y="cena opcji")+
+  theme(plot.title = element_text(hjust = 0.5))
+ggsave("c_r_S0.pdf",path  = "./wykresy")
+
+
+#d_r_r
+subset(d_r_r,d_r_r$wersja=="put") %>%
+  ggplot(aes(x=  r,y = cena_opcji,col = opcja))+geom_line()+
+  labs(title="Cena opcji put dla roznych r",x="r",y="cena opcji")+
+  theme(plot.title = element_text(hjust = 0.5))
+ggsave("p_r_r.pdf",path  = "./wykresy")
+
+subset(d_r_r,d_r_r$wersja=="call") %>%
+  ggplot(aes(x=  r,y = cena_opcji,col = opcja))+geom_line()+
+  labs(title="Cena opcji call dla roznych r",x="r",y="cena opcji")+
+  theme(plot.title = element_text(hjust = 0.5))
+ggsave("c_r_r.pdf",path  = "./wykresy")
+
+#d_r_K
+subset(d_r_K,d_r_K$wersja=="put") %>%
+  ggplot(aes(x=  K,y = cena_opcji,col = opcja))+geom_line()+
+  labs(title="Cena opcji put dla roznych K",x="K",y="cena opcji")+
+  theme(plot.title = element_text(hjust = 0.5))
+ggsave("p_r_K.pdf",path  = "./wykresy")
+
+subset(d_r_K,d_r_K$wersja=="call") %>%
+  ggplot(aes(x=  K,y = cena_opcji,col = opcja))+geom_line()+
+  labs(title="Cena opcji call dla roznych K",x="K",y="cena opcji")+
+  theme(plot.title = element_text(hjust = 0.5))
+ggsave("c_r_K.pdf",path  = "./wykresy")
+
+#d_r_T
+
+subset(d_r_T,d_r_T$wersja=="put") %>%
+  ggplot(aes(x=  T,y = cena_opcji,col = opcja))+geom_line()+
+  labs(title="Cena opcji put dla roznych T",x="T",y="cena opcji")+
+  theme(plot.title = element_text(hjust = 0.5))
+ggsave("p_r_T.pdf",path  = "./wykresy")
+
+subset(d_r_T,d_r_T$wersja=="call") %>%
+  ggplot(aes(x=  T,y = cena_opcji,col = opcja))+geom_line()+
+  labs(title="Cena opcji call dla roznych T",x="T",y="cena opcji")+
+  theme(plot.title = element_text(hjust = 0.5))
+ggsave("c_r_T.pdf",path  = "./wykresy")
+
+
+
+d_r_ot_r_s<-read.csv("./dane/dane_odwr_t_od_2_do_98_sigma_od_0.05_do0.3_S_0_50_r_0.02_K_48_T_2_.csv",
+                 header = T,sep = ",")
+d_r_ot_r_S0<-read.csv("./dane/dane_odwr_t_od_2_do_98_sigma_0.3_S_0_od_30_do_79_r_0.02_K_48_T_2_.csv",
+                     header = T,sep = ",")
+d_r_ot_r_r<-read.csv("./dane/dane_odwr_t_od_2_do_98_sigma_0.3_S_0_50_r_od_-0.03_do_0.19000000000000003_K_48_T_2_.csv",
+                     header = T,sep = ",")
+d_r_ot_r_K<-read.csv("./dane/dane_odwr_t_od_2_do_98_sigma_0.3_S_0_50_r_0.02_K_od_30_do_79_T_2_.csv",
+                     header = T,sep = ",")
+d_r_ot_r_T<-read.csv("./dane/dane_odwr_t_od_2_do_98_sigma_0.3_S_0_50_r_0.02_K_48_T_od_1_do_99_.csv",
+                     header = T,sep = ",")
+
+d_r_s_r_S0<-read.csv("./dane/dane_odwr_t_12_sigma_od_0.05_do0.3_S_0_od_30_do_79_r_0.02_K_48_T_2_.csv",
+                header = T,sep = ",")
+d_r_s_r_K<-read.csv("./dane/dane_odwr_t_12_sigma_od_0.05_do0.3_S_0_50_r_0.02_K_od_30_do_79_T_2_.csv",
+                header = T,sep = ",")
+d_r_s_r_r<-read.csv("./dane/dane_odwr_t_12_sigma_od_0.05_do0.3_S_0_50_r_od_-0.03_do_0.19000000000000003_K_48_T_2_.csv",
+                header = T,sep = ",")
+d_r_s_r_T<-read.csv("./dane/dane_odwr_t_12_sigma_od_0.05_do0.3_S_0_50_r_0.02_K_48_T_od_1_do_99_.csv",
+                header = T,sep = ",")
+
+d_r_S0_r_K<-read.csv("./dane/dane_odwr_t_12_sigma_0.3_S_0_od_30_do_79_r_0.02_K_od_30_do_79_T_2_.csv",
+                 header = T,sep = ",")
+d_r_S0_r_r<-read.csv("./dane/dane_odwr_t_12_sigma_0.3_S_0_od_30_do_79_r_od_-0.03_do_0.19000000000000003_K_48_T_2_.csv",
+                 header = T,sep = ",")
+d_r_S0_r_T<-read.csv("./dane/dane_odwr_t_12_sigma_0.3_S_0_od_30_do_79_r_0.02_K_48_T_od_1_do_99_.csv",
+                 header = T,sep = ",")
+
+d_r_r_r_K<-read.csv("./dane/dane_odwr_t_12_sigma_0.3_S_0_50_r_od_-0.03_do_0.19000000000000003_K_od_30_do_79_T_2_.csv",
+                header = T,sep = ",")
+d_r_r_r_T<-read.csv("./dane/dane_odwr_t_12_sigma_0.3_S_0_50_r_od_-0.03_do_0.19000000000000003_K_48_T_od_1_do_99_.csv",
+                    header = T,sep = ",")
+
+d_r_K_r_T<-read.csv("./dane/dane_odwr_t_12_sigma_0.3_S_0_50_r_0.02_K_od_30_do_79_T_od_1_do_99_.csv",
+                header = T,sep = ",")
+
+
+
+
+my_list<-list(d_r_ot_r_s, d_r_ot_r_S0, d_r_ot_r_r,d_r_ot_r_K,d_r_ot_r_T,
+              d_r_s_r_S0,d_r_s_r_K,d_r_s_r_r,d_r_s_r_T,
+              d_r_S0_r_K,d_r_S0_r_r,d_r_S0_r_T,
+              d_r_r_r_K,d_r_r_r_T,d_r_K_r_T)
+
+
+my_list_nazwy<-list("d_r_ot_r_s", "d_r_ot_r_S0", "d_r_ot_r_r","d_r_ot_r_K","d_r_ot_r_T",
+              "d_r_s_r_S0","d_r_s_r_K","d_r_s_r_r","d_r_s_r_T",
+              "d_r_S0_r_K","d_r_S0_r_r","d_r_S0_r_T",
+              "d_r_r_r_K","d_r_r_r_T","d_r_K_r_T")
+
+i<-7
+for (i in seq_along(my_list)) {
+  dane<-my_list[[i]]
+  pierwsza_zmienna<-NULL
+  druga_zmienna<-NULL
+  if(grepl("r_ot", my_list_nazwy[[i]])){
+    if(is.null(pierwsza_zmienna)){
+      pierwsza_zmienna<-"odw_t"
+    }else{
+      druga_zmienna<-"odw_t"
+    }
+  }
+  if(grepl("r_s", my_list_nazwy[[i]])){
+    if(is.null(pierwsza_zmienna)){
+      pierwsza_zmienna<-"sigma"
+    }else{
+      druga_zmienna<-"sigma"
+    }
+  }
+  if(grepl("r_S0", my_list_nazwy[[i]])){
+    if(is.null(pierwsza_zmienna)){
+      pierwsza_zmienna<-"S_0"
+    }else{
+      druga_zmienna<-"S_0"
+    }
+  }
+  if(grepl("r_r", my_list_nazwy[[i]])){
+    if(is.null(pierwsza_zmienna)){
+      pierwsza_zmienna<-"r"
+    }else{
+      druga_zmienna<-"r"
+    }
+  }
+  if(grepl("r_K", my_list_nazwy[[i]])){
+    if(is.null(pierwsza_zmienna)){
+      pierwsza_zmienna<-"K"
+    }else{
+      druga_zmienna<-"K"
+    }
+  }
+  if(grepl("r_T", my_list_nazwy[[i]])){
+    if(is.null(pierwsza_zmienna)){
+      pierwsza_zmienna<-"T"
+    }else{
+      druga_zmienna<-"T"
+    }
+  }
+  subset(dane,dane$wersja=="put") %>%
+    ggplot(aes(x=  .data[[pierwsza_zmienna]],y = .data[[druga_zmienna]],fill = cena_opcji))+ 
+    geom_tile()+
+    theme(plot.title = element_text(hjust = 0.5),
+          plot.subtitle = element_text(hjust = 0.5),
+          legend.position = "bottom",
+          panel.grid = element_blank(),
+          panel.background = element_rect(fill = "white"),
+          plot.background = element_rect(fill = "white"))+
+    scale_fill_viridis_c()+facet_wrap(~opcja)+
+    labs(title="Cena opcji put z podziałem",
+         subtitle = "na opcje amerykanskie i europejskie")
+  substr(my_list_nazwy[[i]], 1, 1) <- "p"
+  ggsave(paste0(my_list_nazwy[[i]],".pdf"),path  = "./wykresy")
+  
+  subset(dane,dane$wersja=="call") %>%
+    ggplot(aes(x=  .data[[pierwsza_zmienna]],y = .data[[druga_zmienna]],fill = cena_opcji))+ 
+    geom_tile()+
+    theme(plot.title = element_text(hjust = 0.5),
+          plot.subtitle = element_text(hjust = 0.5),
+          legend.position = "bottom",
+          panel.grid = element_blank(),
+          panel.background = element_rect(fill = "white"),
+          plot.background = element_rect(fill = "white"))+
+    scale_fill_viridis_c()+facet_wrap(~opcja)+
+    labs(title="Cena opcji call z podziałem",
+         subtitle = "na opcje amerykanskie i europejskie")
+  substr(my_list_nazwy[[i]], 1, 1) <- "c"
+  ggsave(paste0(my_list_nazwy[[i]],".pdf"),path  = "./wykresy")
+}
+
+
+
+subset(dane,dane$wersja=="put"&dane$opcja=="a") %>%
+  ggplot(aes(x=  K,y = sigma,fill = cena_opcji))+ 
+  geom_tile()+
+  labs(title="Cena opcji put dla roznych r")+
+  theme(plot.title = element_text(hjust = 0.5))
+
+x <- LETTERS[1:20]
+y <- paste0("var", seq(1,20))
+data <- expand.grid(X=x, Y=y)
+data$Z <- runif(400, 0, 5)
+
+# Heatmap 
+ggplot(data, aes(X, Y, fill= Z)) + 
+  geom_tile()

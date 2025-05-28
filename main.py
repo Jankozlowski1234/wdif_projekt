@@ -206,4 +206,67 @@ def zbadaj_ile_liczy_srednio_wszystkie_mozliwosci(O_t,sigma,S_0,r,K,T,N = 100):
     return df
 
 
+<<<<<<< HEAD
+=======
+def policz_delte(matrix_do_liczenia, cena_payoff, r, t, p, u, d, S_0, opcja):
+    n = matrix_do_liczenia.shape[1] - 1
+    delty = np.zeros((n+1, n+1))
+    cash = np.zeros((n+1, n+1))
+    q = 1 - p
+
+    for i in np.arange(n-1, -1, -1): 
+        for j in range(i+1):  # knots in given col
+            V_u = matrix_do_liczenia[j, i+1]
+            V_d = matrix_do_liczenia[j+1, i+1]
+            
+            S_curr = S_0 * (u ** j) * (d ** (i - j))
+            S_u = S_curr * u
+            S_d = S_curr * d
+            
+            delta = (V_u - V_d) / (S_u - S_d)
+            B = exp(-r * t) * (p * V_u + q * V_d - delta * (p * S_u + q * S_d))
+            
+            # portfel replikującego
+            wartosc_portfela = delta * S_curr + B
+
+            if opcja == "e":
+                matrix_do_liczenia[j, i] = wartosc_portfela
+            else:
+                matrix_do_liczenia[j, i] = max(wartosc_portfela, cena_payoff[j, i])
+
+            delty[j, i] = delta
+            cash[j, i] = B
+
+    return matrix_do_liczenia, delty, cash
+
+def policz_z_delta(odwr_t = 2, sigma = 0.3, S_0 = 50, r = 0.02, K = 48, T = 2, opcja = "a", wersja = "put"):
+    t = 1 / odwr_t
+    n = int(T * odwr_t)
+    u = exp(sigma * sqrt(t))
+    d = exp(-sigma * sqrt(t))
+    p = (exp(r * t) - d) / (u - d)
+
+    matrix_do_liczenia = np.zeros((n+1, n+1))
+    cena_payoff = policz_payoff_w_kazdej_chwili(n, u, d, S_0, K, wersja)
+    matrix_do_liczenia[:, -1] = cena_payoff[:, -1]
+
+    matrix, delty, cash = policz_delte(matrix_do_liczenia, cena_payoff, r, t, p, u, d, S_0, opcja)
+    dane = []
+    for j in range(n+1):  # col ~ time
+        czas = j * t
+        for i in range(j+1):  # row ~ tree depth
+            S = S_0 * (u ** i) * (d ** (j - i))
+            dane.append({
+                'czas': czas,
+                'poziom': i,
+                'S': S,
+                'wartosc_opcji': matrix[i, j],
+                'delta': delty[i, j],
+                'cash': cash[i, j]
+            })
+    return pd.DataFrame(dane)
+
+
+print(policz_z_delta())
+>>>>>>> 1a522e650b97dbbb46c7776e224aa8762a76759d
 #print(zbadaj_ile_liczy_srednio_wszystkie_mozliwosci([100,500,1000],0.03,50,0.02,48,2,N = 4))
