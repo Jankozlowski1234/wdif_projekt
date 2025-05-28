@@ -3,7 +3,9 @@ import pandas as pd
 from math import sqrt,exp
 from numba import jit
 import time
-
+import matplotlib.pyplot as plt
+import seaborn as sns
+import matplotlib.ticker as ticker
 
 
 
@@ -174,7 +176,7 @@ def zbadaj_ile_liczy_srednio_wszystkie_mozliwosci(O_t,sigma,S_0,r,K,T,N = 100):
             df = pd.concat([df, df1])
     return df
 
-
+# ==== hedging
 def policz_delte(matrix_do_liczenia, cena_payoff, r, t, p, u, d, S_0, opcja):
     n = matrix_do_liczenia.shape[1] - 1
     delty = np.zeros((n+1, n+1))
@@ -216,7 +218,6 @@ def policz_z_delta(odwr_t = 2, sigma = 0.3, S_0 = 50, r = 0.02, K = 48, T = 2, o
     matrix_do_liczenia = np.zeros((n+1, n+1))
     cena_payoff = policz_payoff_w_kazdej_chwili(n, u, d, S_0, K, wersja)
     matrix_do_liczenia[:, -1] = cena_payoff[:, -1]
-
     matrix, delty, cash = policz_delte(matrix_do_liczenia, cena_payoff, r, t, p, u, d, S_0, opcja)
     dane = []
     for j in range(n+1):  # col ~ time
@@ -233,16 +234,15 @@ def policz_z_delta(odwr_t = 2, sigma = 0.3, S_0 = 50, r = 0.02, K = 48, T = 2, o
             })
     return pd.DataFrame(dane)
 
-import matplotlib.pyplot as plt
-import seaborn as sns
 
 def narysuj_heatmape_delt(df):
     pivot = df.pivot(index="poziom", columns="czas", values="delta")
     plt.figure(figsize=(12, 6))
-    sns.heatmap(pivot, cmap="coolwarm", center=0, annot=False, cbar_kws={'label': 'Delta'})
+    ax = sns.heatmap(pivot, cmap="coolwarm", center=0, annot=False, cbar_kws={'label': 'Delta'})
+    ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f"{x:.1f}"))
     plt.title("Mapa ciepła wartości ∆ (delta) w czasie i pozycjach drzewa")
     plt.xlabel("Czas (lata)")
-    plt.ylabel("Poziom drzewa (liczba wzrostów)")
+    plt.ylabel("Poziom drzewa")
     plt.tight_layout()
     plt.show()
 #print(policz_z_delta())
