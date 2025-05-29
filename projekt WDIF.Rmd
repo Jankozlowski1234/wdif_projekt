@@ -176,11 +176,13 @@ Podsumowanie dokonanych obserwacji rozpoczniemy od tych parametrów, dla któryc
 
 # Analiza składu portfela zabezpieczającego
 
-Na poniższym wykresie przedstawiono zmiany wartości delty w funkcji czasu oraz poziomu drzewa binarnego, odpowiadającego liczbie wzrostów ceny aktywa bazowego. Wartość delty odzwierciedla liczbę jednostek instrumentu bazowego (np. akcji), które należy utrzymywać w portfelu, aby skutecznie zabezpieczyć się przed ryzykiem zmian ceny aktywa.  Innymi słowy, delta określa nachylenie zależności między wartością portfela replikującego a ceną instrumentu bazowego.
-
+Na poniższym rysunku przedstawiono porównanie map ciepła wartości delty w czasie i pozycjach drzewa binarnego dla opcji typu call oraz put. Każdy z węzłów drzewa odpowiada konkretnej liczbie wzrostów ceny instrumentu bazowego  oraz momentowi w czasie (na osi X). Kolor w danym punkcie odzwierciedla wartość delty, czyli liczby akcji potrzebnej w portfelu zabezpieczającym, aby replikować wartość opcji.
 ```{r, echo=FALSE, out.width="85%", fig.align='center'}
 knitr::include_graphics("wykres_delta.png")
-```
+W przypadku opcji call obserwujemy, że delta rośnie wraz ze wzrostem ceny instrumentu bazowego i zbliża się do wartości 1 w górnych węzłach drzewa. Oznacza to, że gdy cena aktywa znacznie przewyższa cenę wykonania, portfel powinien zawierać prawie jedną akcję, aby skutecznie odwzorować zachowanie opcji.
+Z kolei w przypadku opcji put wartość delty maleje i przyjmuje wartości ujemne, szczególnie w dolnych gałęziach drzewa, gdzie cena aktywa jest niska. Jednak ze względu na to, że cena wykonania K w analizowanym przypadku nie jest znacznie wyższa od ceny początkowej S_{0}, opcja nie jest głęboko "in-the-money", dlatego delta nie osiąga pełnej wartości –1. Mimo to, zauważalna jest silna zależność: im niższa cena aktywa bazowego, tym większe (bardziej ujemne) wartości delty.
+Porównanie wykresów pozwala dostrzec symetrię między opcją call a put w kontekście ich wrażliwości na zmianę ceny instrumentu bazowego, co jest zgodne z teorią finansową. Wartości delty pozostają w oczekiwanych przedziałach: [0,1] dla call i [−1,0] dla put, co potwierdza poprawność implementacji modelu.
+
 
 *Rysunek 8. Drzewo wyceny dla opcji put wraz z wartościami delty w odpowiednich wierzchołkach.*
 

@@ -206,9 +206,9 @@ def zbadaj_ile_liczy_srednio_wszystkie_mozliwosci(O_t,sigma,S_0,r,K,T,N = 100):
             df1 = zbadaj_ile_liczy_srednio(O_t,sigma,S_0,r,K,T,opcja,wersja,N)
             df = pd.concat([df, df1])
     return df
-N = 100
-df = zbadaj_ile_liczy_srednio_wszystkie_mozliwosci(np.arange(1,300,1),0.03,50,0.02,48,2,N = N)
-df.to_csv(f"dane/dlugosc_liczenia_N_{N}.csv", index=False)
+#N = 100
+#df = zbadaj_ile_liczy_srednio_wszystkie_mozliwosci(np.arange(1,300,1),0.03,50,0.02,48,2,N = N)
+#df.to_csv(f"dane/dlugosc_liczenia_N_{N}.csv", index=False)
 
 #<<<<<<< HEAD
 #=======
@@ -227,8 +227,10 @@ def policz_delte(matrix_do_liczenia, cena_payoff, r, t, p, u, d, S_0, opcja):
             S_curr = S_0 * (u ** j) * (d ** (i - j))
             S_u = S_curr * u
             S_d = S_curr * d
+
             
             delta = (V_u - V_d) / (S_u - S_d)
+            delta = np.clip(delta, -1, 1)
             B = exp(-r * t) * (p * V_u + q * V_d - delta * (p * S_u + q * S_d))
             
             # portfel replikującego
@@ -275,12 +277,52 @@ def policz_z_delta(odwr_t = 2, sigma = 0.3, S_0 = 50, r = 0.02, K = 48, T = 2, o
 def narysuj_heatmape_delt(df):
     pivot = df.pivot(index="poziom", columns="czas", values="delta")
     plt.figure(figsize=(12, 6))
-    ax = sns.heatmap(pivot, cmap="coolwarm", center=0, annot=False, cbar_kws={'label': 'Delta'})
+    ax = sns.heatmap(
+        pivot,
+        cmap="coolwarm",
+        center=0,
+        vmin=-1, vmax=1,  
+        annot=False,
+        cbar_kws={'label': 'Delta'}
+    )
     ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f"{x:.1f}"))
-    plt.title("Mapa ciepła wartości ∆ (delta) w czasie i pozycjach drzewa")
+    plt.title("Mapa ciepła wartości ∆ w czasie i lokacji na drzewie")
     plt.xlabel("Czas (lata)")
     plt.ylabel("Poziom drzewa")
     plt.tight_layout()
+    plt.savefig('test.png')
     plt.show()
+
+
+def narysuj_porownanie_delt_call_put(odwr_t=12, sigma=0.3, S_0=50, r=0.02, K=48, T=2, opcja="a"):
+    df_call = policz_z_delta(odwr_t=odwr_t, sigma=sigma, S_0=S_0, r=r, K=K, T=T, opcja=opcja, wersja="call")
+    df_put = policz_z_delta(odwr_t=odwr_t, sigma=sigma, S_0=S_0, r=r, K=K, T=T, opcja=opcja, wersja="put")
+
+    pivot_call = df_call.pivot(index="poziom", columns="czas", values="delta")
+    pivot_put = df_put.pivot(index="poziom", columns="czas", values="delta")
+
+    fig, axs = plt.subplots(2, 1, figsize=(12, 10), sharex=True)
+
+    # Wykres call
+    sns.heatmap(pivot_call, cmap="coolwarm", center=0, vmin=-1, vmax=1,
+                annot=False, cbar_kws={'label': 'Delta (call)'}, ax=axs[0])
+    axs[0].set_title("Mapa ciepła ∆ – opcja CALL")
+    axs[0].set_ylabel("Poziom drzewa")
+    axs[0].xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f"{x:.1f}"))
+
+    # Wykres put
+    sns.heatmap(pivot_put, cmap="coolwarm", center=0, vmin=-1, vmax=1,
+                annot=False, cbar_kws={'label': 'Delta (put)'}, ax=axs[1])
+    axs[1].set_title("Mapa ciepła ∆ – opcja PUT")
+    axs[1].set_xlabel("Czas (lata)")
+    axs[1].set_ylabel("Poziom drzewa")
+    axs[1].xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f"{x:.1f}"))
+
+    plt.tight_layout()
+    plt.savefig("wykres_delta.png")
+    plt.show()
+
+#narysuj_heatmape_delt(policz_z_delta(wersja="put"))
+narysuj_porownanie_delt_call_put()
 #print(policz_z_delta())
 #print(zbadaj_ile_liczy_srednio_wszystkie_mozliwosci([100,500,1000],0.03,50,0.02,48,2,N = 4))
