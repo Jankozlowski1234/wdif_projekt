@@ -19,7 +19,6 @@ library(ggplot2)
 require(gridExtra)
 library(grid)
 library(kableExtra)
-source("BOPM w R.R")
 ```
 
 
@@ -61,77 +60,10 @@ Jak widzimy, wartość opcji call jest istotnie wyższa od wartości opcji put d
 $$
 C_0 - P_0 = S_0 - Ke^{-rT} \ge K - Ke^{-rT} = K(1 - e^{-rT}) > 0
 $$
-gdzie $C_0$ i $P_0$ są cenami odpowiednio opcji call i put w chwili zero. Analogicznymi przekształceniami możemy uzyskać wartość parametru $K$ tak, aby (przy pozostałych parametrach niezmienionych) relacja uzyskanych wartości opcji call i put się odwróciła.
-
-Przyjrzyjmy sie teraz ewolucji wartości opcji w drzewach dwumianowych wynikających z rozważanego modelu. Na poniższych dwóch ilustracjach przedstawiamy owe drzewa dla obu opcji: po lewej dla opcji call, a po prawej dla opcji put. Kolor danego wierzchołka jest bezpośrednio związany z odpowiadającą mu wyznaczoną wartością opcji - jeśli wartość ta jest dodatnia to wierzchołek oznaczony jest kolorem zielonym, a jeśli wartość wynosi zero to kolorem czerwonym.
-
-```{r echo=FALSE, message=FALSE, warning=FALSE, fig.align='center', fig.height=4, fig.width=4, out.extra='trim=0 50 0 45,clip'}
-df1 <- melt(option_values_from_bopm(2, 1/12, 0.3, 50, 48, 0.02, 'call', 'european'), varnames = c("node", "time"), value.name = "value")
-df1$node_sym <- df1$time / 2 - df1$node
-
-df2 <- melt(option_values_from_bopm(2, 1/12, 0.3, 50, 48, 0.02, 'put', 'european'), varnames = c("node", "time"), value.name = "value")
-df2$node_sym <- df2$time / 2 - df2$node
-
-df1$color_group <- ifelse(df1$value > 0, "green", "red")
-p1 = ggplot(df1, aes(x = time, y = node_sym, fill = color_group)) +
-  geom_tile() +
-  scale_fill_manual(
-    values = c("green" = "green", "red" = "red"),
-    na.value = "white"
-  ) +
-  scale_y_continuous(limits = c(-15, 15), expand = expansion(mult = c(0.01, 0.01))) +
-  labs(
-    title = "Opcja call",
-    x = "Krok "
-  ) +
-  theme(
-    panel.background = element_blank(),     
-    panel.grid = element_blank(),           
-    axis.ticks.y = element_blank(),         
-    axis.text.y = element_blank(),          
-    axis.title.y = element_blank(),  
-    axis.title.x = element_blank(),
-    legend.position = "none",  
-    axis.line.y = element_blank() ,
-    plot.title = element_text(hjust = 0.5)
-  ) +
-  coord_fixed()
+gdzie $C_0$ i $P_0$ są cenami odpowiednio opcji call i put w chwili zero (zakładamy też, że $r > 0$). Analogicznymi przekształceniami możemy uzyskać wartość parametru $K$ tak, aby (przy pozostałych parametrach niezmienionych) relacja uzyskanych wartości opcji call i put się odwróciła.
 
 
-df2$color_group <- ifelse(df2$value > 0, "green", "red")
-p2 = ggplot(df2, aes(x = time, y = node_sym, fill = color_group)) +
-  geom_tile() +
-  scale_fill_manual(
-    values = c("green" = "green", "red" = "red"),
-    na.value = "white"
-  ) +
-  scale_y_continuous(limits = c(-15, 15), expand = expansion(mult = c(0.01, 0.01))) +
-  labs(
-    title = "Opcja put",
-    x = "Krok "
-  ) +
-  theme(
-    panel.background = element_blank(),     
-    panel.grid = element_blank(),           
-    axis.ticks.y = element_blank(),         
-    axis.text.y = element_blank(),          
-    axis.title.y = element_blank(),
-    axis.title.x = element_blank(),
-    legend.position = "none",  
-    axis.line.y = element_blank() ,
-    plot.title = element_text(hjust = 0.5)
-  ) +
-  coord_fixed()
 
-
-grid.arrange(p1, p2, ncol=2, bottom = textGrob(expression("Krok (" * Delta * "t)"), vjust = -3.5, gp = gpar(fontsize = 12)))
-```
-
-*Rysunek 1. Drzewa wyceny opcji europejskich typu call i put. Kolor zielony oznacza dodatnią wartość wyceny, czerwony oznacza zerową wartość wyceny.*
-
-Rozpocznijmy od pewnej bardzo prostej obserwacji - obie wizualizacje zgadzają się z podstawowymi oczekiwaniami dotyczącymi obu rodzajów opcji, tzn. wartość opcji call jest zerowa przy dużych spadkach cen, natomiast wartość opcji put jest zerowa przy dużych wzrostach cen. Po dokładniejszym przyjrzeniu się obu wykresom zauważymy jednak, że to opcja put wcześniej (tj. po mniejszej liczbie wzrostów/spadków cen) wyceniana jest jako bezwartościowa, co łączy się oczywiście z tym, że w większej ilości wierzchołków jej wartość jest równa $0$. 
-
-[...]
 
 ## Wycena opcji amerykańskich call i put
 
@@ -145,83 +77,17 @@ Jak widzimy, relacja między uzyskanymi wartościami jest taka sama jak w przypa
 
 Zwróćmy jednak uwagę na pewną ciekawą prawidłowość - wartość opcji europejskiej typu call jest równa wartości opcji amerykańskiej typu call. Początkowo może się wydawać, że jest to zwykły przypadek wynikający z akurat takiej konfiguracji parametrów; zauważmy jednak, że jedynym czynnikiem mogącym wywołać zmianę w wycenie obu tych opcji jest możliwość przedwczesnego wykonania opcji amerykańskiej. Jednakże, po zbadaniu potencjalnej opłacalności takiego działania dochodzimy do wniosku, że przedwczesne wykonanie opcji (przypomnijmy, zakładamy brak wypłacanych dywidend dla aktywa bazowego) call nigdy nie jest opłacalne, co poprawnie odzwierciedla wykorzystany przez nas model wyceny. Rozważmy bowiem następujący scenariusz:^[argumentacja zainspirowana rozdziałem 11.5 książki *Options, futures and other derivatives* autorstwa Johna C. Hulla.] załóżmy, że w danej chwili przed upływem ważności opcji aktywo bazowe warte jest 50 PLN, a cena wykonania wynosi 40 PLN. Jeśli zależy nam na posiadaniu owego aktywa, lepiej zapłacić cenę wykonania później, ponieważ: (1) 40 PLN, które zapłacimy w przyszłości warte jest mniej niż te, które zapłacilibyśmy teraz oraz (2) istnieje szansa, że cena aktywa spadnie nawet poniżej ceny wykonania. Jeśli natomiast nie interesuje nas posiadanie aktywa, a jedynie zarobek, to bardziej opłacalnym działaniem jest sprzedanie całej opcji (której cena musi być większa niż wartość wewnętrzna, tj. przychód z natychmiastowego wykonania), lub sprzedanie krótko aktywa bazowego i dostarczenie go w momencie wykonania opcji, kiedy to cena aktywa może spaść nawet poniżej ceny wykonania.
 
-Równości cen opcji europejskich i amerykańskich typu put oczywiście nie zachodzi. W tym przypadku możliwość przedwczesnego wykonania opcji w wielu momentach jest jak najbardziej działaniem optymalnym, a argumentacja analogiczna do tej z powyższego akapitu oczywiście nie znajduje zastosowania. Bierze się to między innymi z faktu, że spadek (oraz jego tempo) ceny aktywa bazowego jest znacznie mniejszy (oraz ograniczony!) od jego wzrostu w rozważanym przez nas modelu. Do analizy momentów przedwczesnego wykonania jeszcze wrócimy, póki co zbadajmy, tak jak dla opcji europejskich, ewolucje wartości opcji w drzewach dwumianowych dla rozważanych opcji amerykańskich.
+Równości cen opcji europejskich i amerykańskich typu put oczywiście nie zachodzi. W tym przypadku możliwość przedwczesnego wykonania opcji w wielu momentach jest jak najbardziej działaniem optymalnym, a argumentacja analogiczna do tej z powyższego akapitu oczywiście nie znajduje zastosowania. Bierze się to między innymi z faktu, że spadek (oraz jego tempo) ceny aktywa bazowego jest znacznie mniejszy (oraz ograniczony!) od jego wzrostu w rozważanym przez nas modelu. 
 
-```{r echo=FALSE, message=FALSE, warning=FALSE, fig.align='center', fig.height=4, fig.width=4, out.extra='trim=0 50 0 45,clip'}
-df3 <- melt(option_values_from_bopm(2, 1/12, 0.3, 50, 48, 0.02, 'call', 'american')[[1]], varnames = c("node", "time"), value.name = "value")
-df3$node_sym <- df3$time / 2 - df3$node
+Przyjrzyjmy się teraz optymalnym momentom wykonania opcji put oraz różnicy między wartościami amerykańskich i europejskich opcji put dla rozważanych parametrów. Obie rzeczy przedstawiają poniższe ilustracje.
 
-df4 <- melt(option_values_from_bopm(2, 1/12, 0.3, 50, 48, 0.02, 'put', 'american')[[1]], varnames = c("node", "time"), value.name = "value")
-df4$node_sym <- df4$time / 2 - df4$node
-
-df3$color_group <- ifelse(df3$value > 0, "green", "red")
-p3 = ggplot(df1, aes(x = time, y = node_sym, fill = color_group)) +
-  geom_tile() +
-  scale_fill_manual(
-    values = c("green" = "green", "red" = "red"),
-    na.value = "white"
-  ) +
-  scale_y_continuous(limits = c(-15, 15), expand = expansion(mult = c(0.01, 0.01))) +
-  labs(
-    title = "Opcja call",
-    x = "Krok "
-  ) +
-  theme(
-    panel.background = element_blank(),     
-    panel.grid = element_blank(),           
-    axis.ticks.y = element_blank(),         
-    axis.text.y = element_blank(),          
-    axis.title.y = element_blank(),  
-    axis.title.x = element_blank(),
-    legend.position = "none",  
-    axis.line.y = element_blank() ,
-    plot.title = element_text(hjust = 0.5)
-  ) +
-  coord_fixed()
-
-
-df4$color_group <- ifelse(df4$value > 0, "green", "red")
-p4 = ggplot(df4, aes(x = time, y = node_sym, fill = color_group)) +
-  geom_tile() +
-  scale_fill_manual(
-    values = c("green" = "green", "red" = "red"),
-    na.value = "white"
-  ) +
-  scale_y_continuous(limits = c(-15, 15), expand = expansion(mult = c(0.01, 0.01))) +
-  labs(
-    title = "Opcja put",
-    x = "Krok "
-  ) +
-  theme(
-    panel.background = element_blank(),     
-    panel.grid = element_blank(),           
-    axis.ticks.y = element_blank(),         
-    axis.text.y = element_blank(),          
-    axis.title.y = element_blank(),
-    axis.title.x = element_blank(),
-    legend.position = "none",  
-    axis.line.y = element_blank() ,
-    plot.title = element_text(hjust = 0.5)
-  ) +
-  coord_fixed()
-
-
-grid.arrange(p3, p4, ncol=2, bottom = textGrob(expression("Krok (" * Delta * "t)"), vjust = -3.5, gp = gpar(fontsize = 12)))
-```
-
-*Rysunek 2. Drzewa wyceny opcji europejskich typu call i put. Kolor zielony oznacza dodatnią wartość wyceny, czerwony oznacza zerową wartość wyceny.*
-
-Jak widzimy, oba drzewa wyglądają właściwie tak samo jak w przypadku opcji europejskich - nie powinno to nas zaskakiwać na pewno w przypadku opcji call, ponieważ ustaliśmy, że dla nich przedwczesne wykonanie nie jest działaniem optymalnym, więc wycena jest taka sama dla opcji europejskich. Inaczej wygląda sytuacja w przypadku opcji typu put; wtedy już przedwczesne wykonanie niejednokrotnie się opłaca, choć nie sprawia ono, że w niektórych wierzchołkach opcja zostałaby wyceniona na dodatnią, podczas gdy jej europejski odpowiednik wyceniany jest na zero. Możliwość ta wpływa jedynie na zwiększenie już dodatniej wartości opcji w danym wierzchołku. Momenty optymalnego przedwczesnego wykonania oraz wynikające z nich różnice w cenie między amerykańską i europejską opcją put przedstawiają poniższe ilustracje.
-
-```{r, echo=FALSE, out.width="75%", fig.align='center'}
-# wykres jako obrazek bo optymalnie go przeskalowac/upozycjonowac to nie lada wyzwanie;
-# ogolnie do potencjalnej zmiany w przyszlosci
+```{r, echo=FALSE, out.width="75%", fig.align='center', out.extra='trim=0 10 0 10,clip'}
 knitr::include_graphics("wykres.png")
 ```
 
-*Rysunek 3. Drzewa wyceny opcji amerykańskich typu put. Rysunek po lewej zawiera drzewo z momentami optymalnego wykonania opcji, gdzie kolor niebieski odpowiada wierzchołkowi, który odpowiada momentowi w czasie, kiedy wykonanie opcji jest optymalnym działaniem; w przeciwnym wypadku wierzchołek oznaczony jest kolorem szarym. Rysunek po prawej zawiera drzewo wyceny z różnicami wartości opcji w danym wierzchołku między amerykańską i europejską opcją put.*
+*Rysunek 1. Drzewa wyceny opcji amerykańskich typu put. Rysunek po lewej zawiera drzewo z momentami optymalnego wykonania opcji, gdzie kolor niebieski odpowiada wierzchołkowi, który odpowiada momentowi w czasie, kiedy wykonanie opcji jest optymalnym działaniem; w przeciwnym wypadku wierzchołek oznaczony jest kolorem szarym. Rysunek po prawej zawiera drzewo wyceny z różnicami wartości opcji w danym wierzchołku między amerykańską i europejską opcją put.*
 
-[...]
+Rozpocznijmy od analizy momentów optymalnego wykonania. Jak widzimy na drzewie wyceny, wykonanie opcji staje się optymalnym wyborem w dolnej części drzewa, kiedy cena aktywa bazowego osiąga pewną niską wartość (konkretnie $27.27$). Dla każdego następnego wierzchołka, w którym cena aktywa jest owej niskiej wartości równa bądź mniejsza wykonanie również jest opcją optymalną. Co do różnic cen między opcją amerykańską a europejską, dokonajmy na początku pewnej trywialnej obserwacji - wartość opcji amerykańskiej jest w każdym wierzchołku wyższa lub równa od wartości opcji europejskiej (wynika to oczywiście z możliwości przedwczesnego wykoniania). Największą różnicę w wartościach widzimy dla wierzchołków znajdujących się nisko i w połowie drzewa, tj. dla tych, dla których cena aktywa bazowego jest już dosyć niska, po upływie około połowy czasu do wygaśnięcia opcji. Brak różnicy widzimy natomiast w każdym z ostatnich wierzchołków (gdzie wartości są równe z oczywistych względów) oraz w górnej części drzewa wyceny.
 
 # Analiza wrażliwości modelu
 
@@ -229,43 +95,100 @@ W tym rozdziale zajmiemy się analizą wrażliwości wyceny modelu dwumianowego.
 
 W następnych dwóch podrozdziałach przeanalizujemy wpływ zmiany pojedynczego parametru na zmianę wyceny opcji - rozpoczniemy od zbadania zmian parametrów $S_0, K, T, \sigma$ i $r$, tj. tych bezpośrednio odnoszących się do ogólnie pojętej sytuacji rynkowej, po czym przyjrzymy się jakie zmiany wywołuje wykorzystanie innych wartości parametru $\Delta t$. W ostatnim, trzecim podrozdziale zbadamy wspólny wpływ zmian w różnych parach parametrów.
 
-[...]
+## Wpływ zmiany parametrów $S_0, K, \sigma$ i $r$
 
+Analizę wrażliwości wyceny na zmiany pojedynczych parametrów rozpoczniemy od zbadania wpływu parametru $S_0$ i $K$, czyli początkowej wartości aktywa bazowego i ceny wykonania opcji odpowiednio. Za zakres zmienności obu parametru przyjmujemy przedział $[30, 80]$ (w przykładowej wycenie przyjmowaliśmy $S_0 = 50$ i $K = 48$). Pozostałe parametry pozostają niezmienione, równe wcześniej zaprezentowanym wartościom. Na poniższych wykresach przedstawiamy uzyskane wyceny opcji call i put na chwilę zero (podzielone ze względu na rodzaj opcji: a - amerykański, e - europejski), w zależności od wartości wspomnianych parametrów.
 
-## Wpływ zmiany parametrów $S_0, K, T, \sigma$ i $r$
+```{r, echo=FALSE, out.width="40%", fig.show='hold', fig.align='center'}
+knitr::include_graphics(c("d_r_S0.pdf", "d_r_K.pdf"))
+``` 
 
-[...]
+*Rysunek 2. Wykres wartości opcji call i put w chwili zero w zależności od wartości parametrów $S_0$ i $K$.*
 
-## Wpływ zmiany parametru $\Delta t$
+Zanim rozpoczniemy dokładną analizę uzyskanych wyników zwróćmy uwagę na fakt (który widoczny będzie również w następnych przypadkach), że wycena opcji call dla opcji amerykańskich i europejskich jest równa - zjawisko te opisaliśmy w poprzednim rozdziale. Wracając do badania wpływu parametrów, zacznijmy od parametru $S_0$. Jak widzimy na powyższym wykresie, jego wzrost ma wyraźnie silny wpływ na wzrost wartości opcji call i spadek wartości opcji put. W przypadku opcji call owy wzrost jest zdaje się być bardzo szybki, natomiast spadek dla opcji call zdaje się powoli stabilizować już przy $S_0$ równym $80$. Zauważmy jeszcze, że różnice między wycenami opcji put rodzaju amerykańskiego i europejskiego są minimalne.
 
-[...]
+Przejdźmy teraz do wpływu parametru $K$. W tym przypadku również widzimy silną zależność między jego wartością a uzyskaną wyceną - jednak tym razem, wzrost parametru ma znaczący wpływ na spadek wartości opcji call i wzrost wartości opcji put; również tutaj spadek zdaje się stabilizować już przy $K$ równym $80$. Analogicznie jak w przypadku parametru $S_0$, różnice między wycenami opcji put rodzaju amerykańskiego i europejskiego są niewielkie.
+
+Następnymi parametrami, których wpływ na wycenę zbadamy, są $\sigma$ i $r$, czyli czyli tzw. zmienność ceny aktywa bazowego (kontrolująca to jak bardzo owa cena rośnie/maleje między sąsiadującymi wierzchołkami) i stopa procentowa bez ryzyka odpowiednio. Za zakres zmienności parametru $\sigma$ przyjmujemy przedział $[0.05, 0.3]$ (w przykładowej wycenie przyjmowaliśmy $\sigma = 0.3$), a dla parametru $r$ przedział $[-0.03, 0.2]$. Pozostałe parametry pozostają niezmienione, równe wcześniej zaprezentowanym wartościom. Na poniższych wykresach przedstawiamy uzyskane wyceny opcji call i put na chwilę zero (podzielone ze względu na rodzaj opcji: a - amerykański, e - europejski), w zależności od wartości wspomnianych parametrów.
+
+```{r, echo=FALSE, out.width="40%", fig.show='hold', fig.align='center'}
+knitr::include_graphics(c("d_r_s.pdf", "d_r_r.pdf"))
+``` 
+
+*Rysunek 3. Wykres wartości opcji call i put w chwili zero w zależności od wartości parametrów $\sigma$ i $r$.*
+
+Zacznijmy od badania wpływu parametru $\sigma$. Jak widzimy na powyższych wykresach, jego wzrost ma pozytywny wpływ na wzrost wartości zarówno opcji call jak i put. Porównując jednak poziom tego przyrostu z tym uzyskanym dla poprzednich dwóch przypadków (tj. dla parametrów $S_0$ i $K$) widzimy, że jest on znacznie mniejszy, wynoszący jedynie PLN; zauważmy również, że poziom tego przyrostu zdaje się być równy dla obu typów opcji. Co do różnic między wartościami opcji put rodzaju amerykańskiego i europejskiego, ponownie owe różnice są minimalne.
+
+Przejdźmy teraz do wpływu parametru $r$. Jak widzimy na wykresach, mamy do czynienia z tą samą zależnością jak w przypadku parametru $S_0$, tj. wraz ze wzrostem parametru $r$ obserwujemy wzrost wartości opcji call oraz spadek wartości opcji put. Zwróćmy jednak szczególną uwagę na zakres dopuszczalnych wartości parametru - dopuszczamy również ujemne wartości stopy procentowej bez ryzyka. Jest to oczywiście wartość odpowiadająca dość niepowszechnym sytuacjom rynkowym. Zauważmy, że w tym przypadku ceny opcji call rodzaju europejskiego i amerykańskiego różnią się, na podstawie czego możemy wywnioskować, że istnieją momenty optymalnego przedterminowego wykonania opcji. Co do poziomu wzrostu jak i spadku wartości opcji obu typów, warto odnotować że nie jest on zbyt duży - szczególnie, jeśli skupimy się na najczęściej występujących wartościach stopy procentowej, tj. takim w przedziale $[0.01, 0.1]$, wtedy ów poziom jest niewielki, wynoszący $\pm 1$ PLN. 
+
+## Wpływ zmiany parametrów $T$ i $\Delta t$
+
+Ostatnimi parametrami, których wpływ na wycenę zbadamy, jest $\Delta t$ i $T$, czyli czas mijający w trakcie jednego kroku w drzewie wyceny oraz czas do wygaśnięcia opcji (podawany w latach) odpowiednio. Oba parametry dotyczą czasu w rozważanym modelu, przy czym wartość parametru $\Delta t$ ma wpływ nie tylko na uzyskaną wartość opcji, ale również na czas wykonania algorytmu dokonującego wyceny, bowiem bezpośrednio determinuje on liczbę wierzchołków w drzewie. W związku z tym, przeanalizujemy nie tylko uzyskane wartości opcji w zależności od wartości tych parametrów, ale również wpływ wartości parametru $\Delta t$ na czas dokonania tej wyceny. Za zakres zmienności parametru $T$ przyjmujemy przedział $(0, 100]$ (w przykładowej wycenie przyjmowaliśmy $T = 2$), a dla parametru $\Delta t$ przedział $(0, 0.5]$ (w przykładowej wycenie przyjmowaliśmy $\Delta t = 1/12$). Pozostałe parametry pozostają niezmienione, równe wcześniej zaprezentowanym wartościom. Rozpoczniemy od analizy różnic w wycenie opcji - na poniższych wykresach przedstawiamy uzyskane wyceny opcji call i put na chwilę zero (podzielone ze względu na rodzaj opcji: a - amerykański, e - europejski), w zależności od wartości wspomnianych parametrów.
+
+```{r, echo=FALSE, out.width="40%", fig.show='hold', fig.align='center'}
+knitr::include_graphics(c("d_r_T.pdf", "d_r_ot.pdf"))
+``` 
+
+*Rysunek 4. Wykres wartości opcji call i put w chwili zero w zależności od wartości parametrów $T$ i $\Delta t$.*
+
+Rozpoczniemy od zbadania wpływu parametru $T$. Dla opcji call jak i dla opcji put typu amerykańskiego obserwujemy wzrost wartości opcji przy wzroście parametru $T$. W obu przypadkach zauważamy stabilizację uzyskanej wyceny dla parametru $T$ bliskiego $100$, przy czym wzrost wartości opcji call jest znacznie wyższy od wzrostu opcji put rodzaju amerykańskiego. Zwróćmy równiez uwagę na znaczną różnicę w wartościach między opcjami put rodzaju amerykańskiego i europejskiego - tak duża różnica nie występowała w przypadku zmian innych parametrów. Interesująca jest również dokładna zmienność wartość wyceny opcji europejskiej typu put - początkowo wzrasta wraz ze wzrostem parametru $T$, a następnie maleje; zauważmy jednak, że rozważamy naprawdę duże wartości parametru $T$, raczej nie spotykane w praktyce.
+
+Przeanalizujmy teraz wpływ parametru $\Delta t$. Jak widzimy na obu wykresach, zmienność w uzyskanej wycenie jest bardzo niewielka, zdecydowanie najmniejsza ze wszystkich rozważanych przypadków. Jest to również, obok wpływu parametru $\sigma$, jeden z dwóch przypadków kiedy wpływ parametru jest taki sam dla obu typów opcji. 
+
+Przyjrzyjmy się teraz różnicom w czasach wykonania algorytmu dokonującego wyceny w zależności od wartości parametru $\Delta t$. Poniższy wykres przedstawia uzyskane średnie (obliczone na podstawie 100 powtórzeń) czasy wykonania algorytmu dokonującego wyceny opcji obu typów i obu rodzajów.
+
+```{r, echo=FALSE, out.width="40%", fig.show='hold', fig.align='center'}
+knitr::include_graphics("sredni_czas.pdf")
+``` 
+
+*Rysunek 5. Wykres średniego (obliczonego na podstawie 100 powtórzeń) czasu wykonania algorytmu dokonującego wyceny modelem dla opcji danego typu i rodzaju w zależności od wartości parametru $\Delta t$ (oś pozioma przedstawiająca parametr $\Delta t$ zawiera jego odwrotności, posortowana rosnąco względem tych odwrotności).*
+
+Pomimo pewnych odchyleń dostrzegamy wyraźny kwadratowy wzrost, wraz ze wzrostem odwrotności parametru $\Delta t$ (dla każdego typu i rodzaju opcji). Oczywiście, uzyskane średnie czasy nawet dla $\Delta t = 1/300$ nie są wysokie, jednak w sytuacji dynamicznej wyceny nawet kilkuset opcji czas wykonania takiego algorytmu byłby już znaczący.
 
 ## Wpływ równoczesnej zmiany różnych par parametrów
 
-[...]
+W poprzednich dwóch podrozdziałach analizowaliśmy wpływ zmian pojedynczych parametrów na uzyskane wyceny opcji na chwilę zero. W tym podrozdziale przyjrzymy się równoczesnym zmianom różnych par parametrów w celu dokładniejszej oceny wrażliwości rozważanego modelu. Ze względów praktycznych (możliwych par jest aż $15$, co przy dwóch typach opcji daje łącznie 30 przypadków), analizie poddamy jedynie te przypadki, w których widoczne są pewne interesujące prawidłowości oraz te, które mogą reprezentować pewne ważne scenariusze rynkowe (np. różne zmiennośći ceny aktywa bazowego (parametr $\sigma$) wraz ze zmianami stopy procentowej).
 
+Rozpoczniemy od zbadania wpływu równoczesnych zmian parametrów $S_0$ i $K$. Ponownie, za zakres możliwej zmienności przyjmujemy dla obu parametrów przedział $[30, 80]$. Pozostałe parametry pozostają niezmienione, równe wcześniej zaprezentowanym wartościom. Na poniższych wykresach przedstawiamy uzyskane wyceny opcji call i put na chwilę zero (podzielone ze względu na rodzaj opcji: a - amerykański, e - europejski) w formie heatmapy, w zależności od wartości wspomnianych parametrów.
 
+```{r, echo=FALSE, out.width="45%", fig.show='hold', fig.align='center'}
+knitr::include_graphics(c("c_r_S0_r_K.pdf", "p_r_S0_r_K.pdf"))
+``` 
+
+*Rysunek 6. Wykres wartości opcji call i put w chwili zero w zależności od równoczesnej zmiany wartości parametrów $S_0$ i $K$.*
+
+Na początku zajmimy się przypadkami opcji call - zarówno dla amerykańskiej, jak i europejskiej, widzimy ten przebieg – wartość opcji rośnie wraz ze wzrostem wartości aktywa bazowego ($S_0$) i spadkiem ceny wykonania  ($K$). Jest to zgodne z oczekiwaniami, bowiem im wyższa bieżąca cena aktywa w stosunku do ceny wykonania, tym bardziej opcja znajduje się „in-the-money” i tym samym ma wyższą wartość. W przypadku opcji put, sytuacja wygląda inaczej. Tutaj obserwujemy wzrost wartości opcji wraz ze wzrostem ceny wykonania i spadkiem wartości aktywa bazowego, co oznacza (podobnie jak dla opci call), że opcja staje się bardziej „in-the-money”. Jednak w przeciwieństwie do opcji call, wycena opcji put różni się dla rodzaju amerykańskiego i europejskiego - nie jest ona znacząca, ale można dostrzec, że wersja amerykańska przy osiąga wyższe wartości przy tych samych zmianach obu parametrów.
+
+Przejdźmy teraz do zbadania wpływu równoczesnych zmian parametrów $r$ i $\sigma$. Za zakres możliwej zmienności parametrów przyjmujemy te same przedziały jak w poprzednim podrozdziale, tj. dla parametru $r$ przedział $[-0.03, 0.2]$, a dla parametru przedział $[0.05, 0.3]$. Pozostałe parametry pozostają niezmienione, równe wcześniej zaprezentowanym wartościom. Na poniższych wykresach przedstawiamy uzyskane wyceny opcji call i put na chwilę zero (podzielone ze względu na rodzaj opcji: a - amerykański, e - europejski) w formie heatmapy, w zależności od wartości wspomnianych parametrów.
+
+```{r, echo=FALSE, out.width="45%", fig.show='hold', fig.align='center'}
+knitr::include_graphics(c("c_r_s_r_r.pdf", "p_r_s_r_r.pdf"))
+``` 
+
+*Rysunek 7. Wykres wartości opcji call i put w chwili zero w zależności od równoczesnej zmiany wartości parametrów $\sigma$ i $r$.*
+
+Rozpocznijmy od opcji typu call - dla obu rodzajów opcji (amerykańskich i europejskich) wartość opcji rośnie wraz ze wzrostem zarówno stopy procentowej ($r$) jak i zmiennością ceny aktywa bazowego ($\sigma$). Wzrost stopy procentowej obniża wartość bieżącą ceny wykonania, co zwiększa atrakcyjność opcji call. Z kolei wzrost zmienności zwiększa potencjał skrajnych ruchów ceny aktywa bazowego, co wpływa pozytywnie na wartość opcji – dotyczy to w szczególności opcji call, dla których silne wzrosty ceny aktywa bazowego są korzystne. W przypadku opcji put również obserwujemy wzrost ceny wraz ze wzrostem zmienności ceny aktywa bazowego, co jest naturalne – większa zmienność zwiększa prawdopodobieństwo, że cena aktywa spadnie znacząco poniżej ceny wykonania. Jednak w odniesieniu do stopy procentowej, tendencja jest odwrotna niż dla opcji call - wzrost stopy procentowej powoduje spadek wartości opcji put. Dzieje się tak, ponieważ wyższe stopy procentowe zmniejszają bieżącą wartość przyszłych wypłat, które są podstawą wyceny opcji put. Analogicznie jak w przypadku wpływu parametrów $S_0$ i $K$, warto również zwrócić uwagę na nieco większą wartość opcji put amerykańskich względem opcji europejskich – jest to oczywiście konsekwencja możliwości wcześniejszego wykonania, która w przypadku opcji put może być korzystna, w szczególności przy niskim poziomie stóp procentowych i wysokiej zmienności.
+
+## Podsumowanie
+
+Podsumowanie dokonanych obserwacji rozpoczniemy od tych parametrów, dla których zmiany w obrębie rozważanych zakresów wywoływały największe zmiany w uzyskanych wartościach opcji - są to przede wszystkim parametry $S_0$, $K$ oraz $T$. Zauważmy jednak, że zarówno cena wykonania jak i czas do wygaśnięcia opcji są dokładnie znane dla każdego zainteresowanego zawarcia kontraktu opcji, natomiast wartość $S_0$ jest nieco inna, bowiem nie jest ona jasno określona. Stosując rozważany przez nas model wyceny opcji trzeba mieć dużą pewność co do przyjętej wartości $S_0$, ponieważ duże odchylenie od jej faktycznej wartości może doprowadzić do nieprawidłowej wyceny, co w konsekwencji może skutkować znaczącą stratą pieniężną. Widzimy zatem, że decyzja dotycząca przyjęcia pewnych wartości parametrów $K$ i $T$, pomimo dużej wpływowości na wycenę, obarczona jest mniejszym ryzykiem niż w przypadku parametru $S_0$, ponieważ znacznie ciężej jest tu popełnić błąd - przyjmuje się po prostu wartości opisane w kontrakcie opcji. Podobny pod względem możliwości poznania faktycznej wartości jest parametr $r$, czyli stopa procentowa od ryzyka; tu również, jak w przypadku parametru $S_0$ opierać się trzeba głównie na wartościach krążących na rynku - w tym przypadku jednak, ewentualny błąd nie jest związany z aż tak dużym kosztem jak w przypadku parametru $S_0$. Jeszcze mniejszym wpływem, czyli tym samym mniejszym potencjalnym kosztem, charakteryzuje się parametr dotyczący zmienności ceny aktywa bazowego, czyli $\sigma$. Tutaj jednak znacznie ciężej o bardzo dokładną estymacje parametru; każde aktywo bazowe jest inne, co oznacza zupełnie inne możliwości ewolucji ceny, nie wspominając o nagłych, nieprzewidywalnych zdarzeniach, które mogą drastycznie ową cenę zmienić - na szczęście, jak już nadmieniliśmy, wpływ tego parametru nie jest aż tak wielki jak pozostałych. Na koniec wspomnijmy jeszcze, że parametr $\Delta t$, kontrolujący czas mijający w trakcie jednego kroku w drzewie wyceny (oraz liczbę wierzchołków w owym drzewie) ma bardzo niewielki, wręcz znikomy wpływ na uzyskaną wartość opcji.
 
 
 # Analiza składu portfela zabezpieczającego
-Na poniższym wykresie przedstawiono zmiany wartości delty w funkcji czasu oraz poziomu drzewa binarnego, odpowiadającego liczbie wzrostów ceny aktywa bazowego. Wartość delty odzwierciedla liczbę jednostek instrumentu bazowego (np. akcji), 
-które należy utrzymywać w portfelu, aby skutecznie zabezpieczyć się przed ryzykiem zmian ceny aktywa. 
-Innymi słowy, delta określa nachylenie zależności między wartością portfela replikującego a ceną instrumentu bazowego.
-```{r, echo=FALSE, out.width="75%", fig.align='center'}
+
+Na poniższym wykresie przedstawiono zmiany wartości delty w funkcji czasu oraz poziomu drzewa binarnego, odpowiadającego liczbie wzrostów ceny aktywa bazowego. Wartość delty odzwierciedla liczbę jednostek instrumentu bazowego (np. akcji), które należy utrzymywać w portfelu, aby skutecznie zabezpieczyć się przed ryzykiem zmian ceny aktywa.  Innymi słowy, delta określa nachylenie zależności między wartością portfela replikującego a ceną instrumentu bazowego.
+
+```{r, echo=FALSE, out.width="85%", fig.align='center'}
 knitr::include_graphics("wykres_delta.png")
 ```
-W przypadku opcji typu put, jak w analizowanym przykładzie, wartości delty są zazwyczaj ujemne — oznacza to, że dla zreplikowania opcji inwestor powinien przyjąć pozycję krótką na akcjach. Można również zaobserwować, że delta maleje (czyli staje się bardziej ujemna) 
-w sytuacjach spadków cen instrumentu bazowego. To zgodne z intuicją: im niższa cena akcji, tym większa wartość opcji put, co wymusza większe zabezpieczenie przez pozycję przeciwną.
-Wraz z upływem czasu, czyli w miarę zbliżania się do terminu wygaśnięcia opcji, wartości delty stają się bardziej ekstremalne — to znaczy bardziej zbliżają się do -1 lub 0. Jest to efektem rosnącej wrażliwości 
-wartości opcji na zmiany ceny aktywa w ostatnich momentach życia opcji. Taka dynamika wymusza częstsze i bardziej znaczące dostosowania pozycji w portfelu, co pokazuje rosnące wyzwania związane z praktycznym stosowaniem strategii delta-hedgingu w końcowych etapach życia opcji.
 
+*Rysunek 8. Drzewo wyceny dla opcji put wraz z wartościami delty w odpowiednich wierzchołkach.*
 
+W przypadku opcji typu put, jak w analizowanym przykładzie, wartości delty są zazwyczaj ujemne — oznacza to, że dla zreplikowania opcji inwestor powinien przyjąć pozycję krótką na akcjach. Można również zaobserwować, że delta maleje (czyli staje się bardziej ujemna) w sytuacjach spadków cen instrumentu bazowego. To zgodne z intuicją: im niższa cena akcji, tym większa wartość opcji put, co wymusza większe zabezpieczenie przez pozycję przeciwną. Wraz z upływem czasu, czyli w miarę zbliżania się do terminu wygaśnięcia opcji, wartości delty stają się bardziej ekstremalne — to znaczy bardziej zbliżają się do -1 lub 0. Jest to efektem rosnącej wrażliwości wartości opcji na zmiany ceny aktywa w ostatnich momentach życia opcji. Taka dynamika wymusza częstsze i bardziej znaczące dostosowania pozycji w portfelu, co pokazuje rosnące wyzwania związane z praktycznym stosowaniem strategii delta-hedgingu w końcowych etapach życia opcji.
 
 # Dodatek: Implementacja modelu
 
-[...]
-
-
+W tym dodatkowym podrozdziale zawieramy informacje techniczne dotyczące implementacji modelu wyceny dwumianowej. Uzyskane wyniki oparte były o funkcje napisane w języku *Python*. Dokładne szczegóły owych funkcji, jak i przypadki ich użycia zawieramy w poniższej tabeli.
 
 
 ```{r, include=TRUE ,warning=FALSE, message=FALSE, echo=FALSE}
@@ -278,6 +201,8 @@ do_zapisywania[3,]<-c("wyniki_zad2_n_5000.csv","read_numbers_and_save_p_values",
 kable(do_zapisywania)
 
 ```
+
+
 
 
 
