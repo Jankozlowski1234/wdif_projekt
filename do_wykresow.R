@@ -3,7 +3,7 @@ library(dplyr)
 
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
-czas<-read.csv("./dane/dlugosc_liczenia.csv",
+czas<-read.csv("./dane/dlugosc_liczenia_N_1000.csv",
                header = T,sep = ",")
 czas$wersja<-paste(czas$opcja,czas$wersja,sep = ",")
 
@@ -28,6 +28,12 @@ d_r_K<-read.csv("./dane/dane_odwr_t_12_sigma_0.3_S_0_50_r_0.02_K_od_30_do_79_T_2
                 header = T,sep = ",")
 d_r_T<-read.csv("./dane/dane_odwr_t_12_sigma_0.3_S_0_50_r_0.02_K_48_T_od_1_do_99_.csv",
                 header = T,sep = ",")
+
+
+max_y <- max(max(d_r_ot$cena_opcji),max(d_r_s$cena_opcji),max(d_r_S0$cena_opcji),
+            max(d_r_r$cena_opcji),max(d_r_K$cena_opcji),max(d_r_T$cena_opcji))
+min_y <-min(min(d_r_ot$cena_opcji),min(d_r_s$cena_opcji),min(d_r_S0$cena_opcji),
+            min(d_r_r$cena_opcji),min(d_r_K$cena_opcji),min(d_r_T$cena_opcji))
 #d_r_ot
 
 subset(d_r_ot,d_r_ot$wersja=="put") %>%
@@ -47,7 +53,8 @@ subset(d_r_ot) %>%
   labs(title="Cena opcji put i call dla roznych t",x="t",y="cena opcji",
        subtitle = "z podziałem na opcje amerykańskie i europejskie")+
   theme(plot.title = element_text(hjust = 0.5),
-        plot.subtitle = element_text(hjust = 0.5))+facet_wrap(~wersja)
+        plot.subtitle = element_text(hjust = 0.5))+facet_wrap(~wersja)+
+  ylim(min_y,max_y)
 ggsave("d_r_ot.pdf",path  = "./wykresy")
 
 #d_r_s
@@ -68,7 +75,8 @@ subset(d_r_s) %>%
   labs(title="Cena opcji put i call dla roznych sigma",x="sigma",y="cena opcji",
        subtitle = "z podziałem na opcje amerykańskie i europejskie")+
   theme(plot.title = element_text(hjust = 0.5),
-        plot.subtitle = element_text(hjust = 0.5))+facet_wrap(~wersja)
+        plot.subtitle = element_text(hjust = 0.5))+facet_wrap(~wersja)+
+  ylim(min_y,max_y)
 ggsave("d_r_s.pdf",path  = "./wykresy")
 
 #d_r_S0
@@ -90,7 +98,8 @@ subset(d_r_S0) %>%
   labs(title="Cena opcji put i call dla roznych S_0",x="S_0",y="cena opcji",
        subtitle = "z podziałem na opcje amerykańskie i europejskie")+
   theme(plot.title = element_text(hjust = 0.5),
-        plot.subtitle = element_text(hjust = 0.5))+facet_wrap(~wersja)
+        plot.subtitle = element_text(hjust = 0.5))+facet_wrap(~wersja)+
+  ylim(min_y,max_y)
 ggsave("d_r_S0.pdf",path  = "./wykresy")
 
 #d_r_r
@@ -111,7 +120,8 @@ subset(d_r_r) %>%
   labs(title="Cena opcji put i call dla roznych r",x="r",y="cena opcji",
        subtitle = "z podziałem na opcje amerykańskie i europejskie")+
   theme(plot.title = element_text(hjust = 0.5),
-        plot.subtitle = element_text(hjust = 0.5))+facet_wrap(~wersja)
+        plot.subtitle = element_text(hjust = 0.5))+facet_wrap(~wersja)+
+  ylim(min_y,max_y)
 ggsave("d_r_r.pdf",path  = "./wykresy")
 
 #d_r_K
@@ -133,7 +143,8 @@ subset(d_r_K) %>%
   labs(title="Cena opcji put i call dla roznych K",x="K",y="cena opcji",
        subtitle = "z podziałem na opcje amerykańskie i europejskie")+
   theme(plot.title = element_text(hjust = 0.5),
-        plot.subtitle = element_text(hjust = 0.5))+facet_wrap(~wersja)
+        plot.subtitle = element_text(hjust = 0.5))+facet_wrap(~wersja)+
+  ylim(min_y,max_y)
 ggsave("d_r_K.pdf",path  = "./wykresy")
 
 #d_r_T
@@ -155,7 +166,8 @@ subset(d_r_T) %>%
   labs(title="Cena opcji put i call dla roznych T",x="T",y="cena opcji",
        subtitle = "z podziałem na opcje amerykańskie i europejskie")+
   theme(plot.title = element_text(hjust = 0.5),
-        plot.subtitle = element_text(hjust = 0.5))+facet_wrap(~wersja)
+        plot.subtitle = element_text(hjust = 0.5))+facet_wrap(~wersja)+
+  ylim(min_y,max_y)
 ggsave("d_r_T.pdf",path  = "./wykresy")
 
 
@@ -299,6 +311,21 @@ x <- LETTERS[1:20]
 y <- paste0("var", seq(1,20))
 data <- expand.grid(X=x, Y=y)
 data$Z <- runif(400, 0, 5)
+
+
+i<-7
+for (i in seq_along(my_list)) {
+  dane<-my_list[[i]]
+  w_sumie<-merge(subset(dane,dane$wersja == "call"&dane$opcja == "a"),
+        subset(dane,dane$wersja == "call"&dane$opcja == "e"), 
+        by.x = c("sigma","S_0","K","T","r","odw_t"), 
+        by.y =c("sigma","S_0","K","T","r","odw_t"))
+  print(paste(my_list_nazwy[[i]]," suma roznic to ",sum(w_sumie$cena_opcji.x-w_sumie$cena_opcji.y)))
+  
+}
+
+
+
 
 # Heatmap 
 ggplot(data, aes(X, Y, fill= Z)) + 
