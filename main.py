@@ -141,44 +141,53 @@ def policz_dane_i_zapisz(O_t,Sigmas,S_0s,Rs,Ks,Ts):
     nazwa = zrob_nazwe_do_danych(O_t,Sigmas,S_0s,Rs,Ks,Ts)
     df.to_csv(f"dane/{nazwa}", index=False)
 
-# odwr_t = np.array([12])
-# sigma = np.array([0.3])
-# S_0 = np.array([50])
-# r = np.array([0.02])
-# K = np.array([48])
-# T = np.array([2])
-#
-#
-#
-#
-# O_t = np.arange(2, 100, 2)
-# Sigmas = np.arange(0.05, 0.35, 0.05)
-# S_0s = np.arange(30, 80, 1)
-# Rs = np.arange(-0.03,0.2, 0.01)
-# Ks = np.arange(30, 80, 1)
-# Ts = np.arange(1,100,1)
-#
-# # O_t = np.array([12,13])
-# # Sigmas = np.array([0.3,0.4])
-# # S_0s = np.array([50,51])
-# # Rs = np.array([0.02,0.03])
-# # Ks = np.array([48,49])
-# # Ts = np.array([2,3])
-#
-#
-#
-# pojedyncze = [O_t,sigma,S_0,r,K,Ts]
-# wielokrotne = [O_t,Sigmas,S_0s,Rs,Ks,Ts]
-#
-#
+odwr_t = np.array([12])
+sigma = np.array([0.3])
+S_0 = np.array([50])
+r = np.array([0.02])
+K = np.array([48])
+T = np.array([2])
+policz_dane_i_zapisz(np.array([12]), np.array([0.6]), np.array([50]),np.array([0.3]), np.array([48]), np.arange(1,20,1))
+
+
+
+O_t = np.arange(2, 100, 2)
+Sigmas = np.arange(0.1, 0.66, 0.05)
+S_0s = np.arange(30, 80, 1)
+Rs = np.arange(-0.03,0.2, 0.01)
+Ks = np.arange(30, 80, 1)
+Ts = np.arange(1,100,1)
+
+# O_t = np.array([12,13])
+# Sigmas = np.array([0.3,0.4])
+# S_0s = np.array([50,51])
+# Rs = np.array([0.02,0.03])
+# Ks = np.array([48,49])
+# Ts = np.array([2,3])
+
+
+
+pojedyncze = [odwr_t,sigma,S_0,r,K,T]
+wielokrotne = [O_t,Sigmas,S_0s,Rs,Ks,Ts]
+
+##dla nowych Sigma
 # co_liczymy = deepcopy(pojedyncze)
+# co_liczymy[1] = Sigmas
 # policz_dane_i_zapisz(co_liczymy[0], co_liczymy[1], co_liczymy[2], co_liczymy[3], co_liczymy[4], co_liczymy[5])
-#
-#
-#
-# #policz_dane_i_zapisz(O_t, Sigmas, S_0s, Rs, Ks, Ts)
-#
-#
+
+
+#dla wielu
+
+for i in [2,3,4,5]:
+    pass
+    co_liczymy = deepcopy(pojedyncze)
+    co_liczymy[1] = Sigmas
+    co_liczymy[i] = wielokrotne[i]
+    policz_dane_i_zapisz(co_liczymy[0], co_liczymy[1], co_liczymy[2], co_liczymy[3], co_liczymy[4], co_liczymy[5])
+
+#policz_dane_i_zapisz(O_t, Sigmas, S_0s, Rs, Ks, Ts)
+
+
 
 def policz_czas_liczenia_raz(odw_t,sigma,S_0,r,K,T,opcja,wersja):
     start = time.time()
@@ -206,16 +215,16 @@ def zbadaj_ile_liczy_srednio_wszystkie_mozliwosci(O_t,sigma,S_0,r,K,T,N = 100):
             df1 = zbadaj_ile_liczy_srednio(O_t,sigma,S_0,r,K,T,opcja,wersja,N)
             df = pd.concat([df, df1])
     return df
-<<<<<<< Updated upstream
+
 #N = 100
 #df = zbadaj_ile_liczy_srednio_wszystkie_mozliwosci(np.arange(1,300,1),0.03,50,0.02,48,2,N = N)
 #df.to_csv(f"dane/dlugosc_liczenia_N_{N}.csv", index=False)
-=======
+
 # N = 1000
 # jakie_badac = np.concatenate((np.arange(1,100,2),np.arange(100,500,10),np.arange(500,1000,50)))
 # df = zbadaj_ile_liczy_srednio_wszystkie_mozliwosci(jakie_badac,0.03,50,0.02,48,2,N = N)
 # df.to_csv(f"dane/dlugosc_liczenia_N_{N}.csv", index=False)
->>>>>>> Stashed changes
+
 
 #<<<<<<< HEAD
 #=======
@@ -330,6 +339,6 @@ def narysuj_porownanie_delt_call_put(odwr_t=12, sigma=0.3, S_0=50, r=0.02, K=48,
     plt.show()
 
 #narysuj_heatmape_delt(policz_z_delta(wersja="put"))
-narysuj_porownanie_delt_call_put()
+#narysuj_porownanie_delt_call_put()
 #print(policz_z_delta())
 #print(zbadaj_ile_liczy_srednio_wszystkie_mozliwosci([100,500,1000],0.03,50,0.02,48,2,N = 4))

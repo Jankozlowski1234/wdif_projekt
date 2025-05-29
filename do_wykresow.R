@@ -18,7 +18,7 @@ ggsave("sredni_czas.pdf",path  = "./wykresy")
 
 d_r_ot<-read.csv("./dane/dane_odwr_t_od_2_do_98_sigma_0.3_S_0_50_r_0.02_K_48_T_2_.csv",
                 header = T,sep = ",")
-d_r_s<-read.csv("./dane/dane_odwr_t_12_sigma_od_0.05_do0.3_S_0_50_r_0.02_K_48_T_2_.csv",
+d_r_s<-read.csv("./dane/dane_odwr_t_12_sigma_od_0.1_do0.6500000000000001_S_0_od_30_do_79_r_0.02_K_48_T_2_.csv",
                 header = T,sep = ",")
 d_r_S0<-read.csv("./dane/dane_odwr_t_12_sigma_0.3_S_0_od_30_do_79_r_0.02_K_48_T_2_.csv",
                  header = T,sep = ",")
@@ -268,6 +268,13 @@ for (i in seq_along(my_list)) {
       druga_zmienna<-"T"
     }
   }
+  czy_jest_r<-FALSE
+  if(pierwsza_zmienna=="r"){
+    czy_jest_r<-TRUE
+  }
+  if(druga_zmienna=="r"){
+    czy_jest_r<-TRUE
+  }
   subset(dane,dane$wersja=="put") %>%
     ggplot(aes(x=  .data[[pierwsza_zmienna]],y = .data[[druga_zmienna]],fill = cena_opcji))+ 
     geom_tile()+
@@ -282,35 +289,43 @@ for (i in seq_along(my_list)) {
          subtitle = "na opcje amerykanskie i europejskie")
   substr(my_list_nazwy[[i]], 1, 1) <- "p"
   ggsave(paste0(my_list_nazwy[[i]],".pdf"),path  = "./wykresy")
+  if(czy_jest_r){
+    subset(dane,dane$wersja=="call") %>%
+      ggplot(aes(x=  .data[[pierwsza_zmienna]],y = .data[[druga_zmienna]],fill = cena_opcji))+ 
+      geom_tile()+
+      theme(plot.title = element_text(hjust = 0.5),
+            plot.subtitle = element_text(hjust = 0.5),
+            legend.position = "bottom",
+            panel.grid = element_blank(),
+            panel.background = element_rect(fill = "white"),
+            plot.background = element_rect(fill = "white"))+
+      scale_fill_viridis_c()+facet_wrap(~opcja)+
+      labs(title="Cena opcji call z podziałem",
+           subtitle = "na opcje amerykanskie i europejskie")
+    substr(my_list_nazwy[[i]], 1, 1) <- "c"
+    ggsave(paste0(my_list_nazwy[[i]],".pdf"),path  = "./wykresy")
+  }else{
+    subset(dane,dane$wersja=="call"&dane$opcja=="a") %>%
+      ggplot(aes(x=  .data[[pierwsza_zmienna]],y = .data[[druga_zmienna]],fill = cena_opcji))+ 
+      geom_tile()+
+      theme(plot.title = element_text(hjust = 0.5),
+            plot.subtitle = element_text(hjust = 0.5),
+            legend.position = "bottom",
+            panel.grid = element_blank(),
+            panel.background = element_rect(fill = "white"),
+            plot.background = element_rect(fill = "white"))+
+      scale_fill_viridis_c()+
+      labs(title="Cena opcji call z podziałem",
+           subtitle = "na opcje amerykanskie i europejskie")
+    substr(my_list_nazwy[[i]], 1, 1) <- "c"
+    ggsave(paste0(my_list_nazwy[[i]],".pdf"),path  = "./wykresy")
+    
+  }
   
-  subset(dane,dane$wersja=="call") %>%
-    ggplot(aes(x=  .data[[pierwsza_zmienna]],y = .data[[druga_zmienna]],fill = cena_opcji))+ 
-    geom_tile()+
-    theme(plot.title = element_text(hjust = 0.5),
-          plot.subtitle = element_text(hjust = 0.5),
-          legend.position = "bottom",
-          panel.grid = element_blank(),
-          panel.background = element_rect(fill = "white"),
-          plot.background = element_rect(fill = "white"))+
-    scale_fill_viridis_c()+facet_wrap(~opcja)+
-    labs(title="Cena opcji call z podziałem",
-         subtitle = "na opcje amerykanskie i europejskie")
-  substr(my_list_nazwy[[i]], 1, 1) <- "c"
-  ggsave(paste0(my_list_nazwy[[i]],".pdf"),path  = "./wykresy")
+  
 }
 
 
-
-subset(dane,dane$wersja=="put"&dane$opcja=="a") %>%
-  ggplot(aes(x=  K,y = sigma,fill = cena_opcji))+ 
-  geom_tile()+
-  labs(title="Cena opcji put dla roznych r")+
-  theme(plot.title = element_text(hjust = 0.5))
-
-x <- LETTERS[1:20]
-y <- paste0("var", seq(1,20))
-data <- expand.grid(X=x, Y=y)
-data$Z <- runif(400, 0, 5)
 
 
 i<-7
@@ -325,8 +340,3 @@ for (i in seq_along(my_list)) {
 }
 
 
-
-
-# Heatmap 
-ggplot(data, aes(X, Y, fill= Z)) + 
-  geom_tile()
