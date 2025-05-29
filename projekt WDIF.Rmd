@@ -100,7 +100,7 @@ W następnych dwóch podrozdziałach przeanalizujemy wpływ zmiany pojedynczego 
 Analizę wrażliwości wyceny na zmiany pojedynczych parametrów rozpoczniemy od zbadania wpływu parametru $S_0$ i $K$, czyli początkowej wartości aktywa bazowego i ceny wykonania opcji odpowiednio. Za zakres zmienności obu parametru przyjmujemy przedział $[30, 80]$ (w przykładowej wycenie przyjmowaliśmy $S_0 = 50$ i $K = 48$). Pozostałe parametry pozostają niezmienione, równe wcześniej zaprezentowanym wartościom. Na poniższych wykresach przedstawiamy uzyskane wyceny opcji call i put na chwilę zero (podzielone ze względu na rodzaj opcji: a - amerykański, e - europejski), w zależności od wartości wspomnianych parametrów.
 
 ```{r, echo=FALSE, out.width="40%", fig.show='hold', fig.align='center'}
-knitr::include_graphics(c("d_r_S0.pdf", "d_r_K.pdf"))
+knitr::include_graphics(c("wykresy/d_r_S0.pdf", "wykresy/d_r_K.pdf"))
 ``` 
 
 *Rysunek 2. Wykres wartości opcji call i put w chwili zero w zależności od wartości parametrów $S_0$ i $K$.*

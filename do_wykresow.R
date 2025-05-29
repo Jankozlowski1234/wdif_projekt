@@ -183,13 +183,13 @@ d_r_ot_r_K<-read.csv("./dane/dane_odwr_t_od_2_do_98_sigma_0.3_S_0_50_r_0.02_K_od
 d_r_ot_r_T<-read.csv("./dane/dane_odwr_t_od_2_do_98_sigma_0.3_S_0_50_r_0.02_K_48_T_od_1_do_99_.csv",
                      header = T,sep = ",")
 
-d_r_s_r_S0<-read.csv("./dane/dane_odwr_t_12_sigma_od_0.05_do0.3_S_0_od_30_do_79_r_0.02_K_48_T_2_.csv",
+d_r_s_r_S0<-read.csv("./dane/dane_odwr_t_12_sigma_od_0.1_do0.6500000000000001_S_0_od_30_do_79_r_0.02_K_48_T_2_.csv",
                 header = T,sep = ",")
-d_r_s_r_K<-read.csv("./dane/dane_odwr_t_12_sigma_od_0.05_do0.3_S_0_50_r_0.02_K_od_30_do_79_T_2_.csv",
+d_r_s_r_K<-read.csv("./dane/dane_odwr_t_12_sigma_od_0.1_do0.6500000000000001_S_0_50_r_0.02_K_od_30_do_79_T_2_.csv",
                 header = T,sep = ",")
-d_r_s_r_r<-read.csv("./dane/dane_odwr_t_12_sigma_od_0.05_do0.3_S_0_50_r_od_-0.03_do_0.19000000000000003_K_48_T_2_.csv",
+d_r_s_r_r<-read.csv("./dane/dane_odwr_t_12_sigma_od_0.1_do0.6500000000000001_S_0_50_r_od_-0.03_do_0.19000000000000003_K_48_T_2_.csv",
                 header = T,sep = ",")
-d_r_s_r_T<-read.csv("./dane/dane_odwr_t_12_sigma_od_0.05_do0.3_S_0_50_r_0.02_K_48_T_od_1_do_99_.csv",
+d_r_s_r_T<-read.csv("./dane/dane_odwr_t_12_sigma_od_0.1_do0.6500000000000001_S_0_50_r_0.02_K_48_T_od_1_do_99_.csv",
                 header = T,sep = ",")
 
 d_r_S0_r_K<-read.csv("./dane/dane_odwr_t_12_sigma_0.3_S_0_od_30_do_79_r_0.02_K_od_30_do_79_T_2_.csv",
