@@ -1,5 +1,6 @@
 library(ggplot2)
 library(dplyr)
+library(gridExtra)
 
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
@@ -29,6 +30,9 @@ d_r_K<-read.csv("./dane/dane_odwr_t_12_sigma_0.3_S_0_50_r_0.02_K_od_30_do_79_T_2
 d_r_T<-read.csv("./dane/dane_odwr_t_12_sigma_0.3_S_0_50_r_0.02_K_48_T_od_1_do_99_.csv",
                 header = T,sep = ",")
 
+
+d_r_T_inne<-read.csv("./dane/dane_odwr_t_12_sigma_0.6_S_0_50_r_0.3_K_48_T_od_1_do_19_.csv",
+                     header = T,sep = ",")
 
 max_y <- max(max(d_r_ot$cena_opcji),max(d_r_s$cena_opcji),max(d_r_S0$cena_opcji),
             max(d_r_r$cena_opcji),max(d_r_K$cena_opcji),max(d_r_T$cena_opcji))
@@ -170,6 +174,14 @@ subset(d_r_T) %>%
   ylim(min_y,max_y)
 ggsave("d_r_T.pdf",path  = "./wykresy")
 
+subset(d_r_T_inne) %>%
+  ggplot(aes(x=  T,y = cena_opcji,col = opcja))+geom_line()+
+  labs(title="Cena opcji put i call dla roznych T",x="T",y="cena opcji",
+       subtitle = "z podziałem na opcje amerykańskie i europejskie(r=0.3, sigma = 0.6)")+
+  theme(plot.title = element_text(hjust = 0.5),
+        plot.subtitle = element_text(hjust = 0.5))+facet_wrap(~wersja)
+ggsave("d_r_T_dzikie.pdf",path  = "./wykresy")
+
 
 
 d_r_ot_r_s<-read.csv("./dane/dane_odwr_t_od_2_do_98_sigma_od_0.05_do0.3_S_0_50_r_0.02_K_48_T_2_.csv",
@@ -221,7 +233,7 @@ my_list_nazwy<-list("d_r_ot_r_s", "d_r_ot_r_S0", "d_r_ot_r_r","d_r_ot_r_K","d_r_
               "d_r_S0_r_K","d_r_S0_r_r","d_r_S0_r_T",
               "d_r_r_r_K","d_r_r_r_T","d_r_K_r_T")
 
-i<-7
+i<-3
 for (i in seq_along(my_list)) {
   dane<-my_list[[i]]
   pierwsza_zmienna<-NULL
@@ -290,7 +302,12 @@ for (i in seq_along(my_list)) {
   substr(my_list_nazwy[[i]], 1, 1) <- "p"
   ggsave(paste0(my_list_nazwy[[i]],".pdf"),path  = "./wykresy")
   if(czy_jest_r){
-    subset(dane,dane$wersja=="call") %>%
+    dane_mer <-merge(subset(dane,dane$wersja == "call"&dane$opcja == "a"),
+                     subset(dane,dane$wersja == "call"&dane$opcja == "e"), 
+                     by.x = c("sigma","S_0","K","T","r","odw_t","t","wersja"), 
+                     by.y =c("sigma","S_0","K","T","r","odw_t","t","wersja"))
+    dane_mer$roznica <- (dane_mer$cena_opcji.x-dane_mer$cena_opcji.y)/dane_mer$cena_opcji.y
+    plot1<-subset(dane,dane$wersja=="call"&dane$opcja == "e") %>%
       ggplot(aes(x=  .data[[pierwsza_zmienna]],y = .data[[druga_zmienna]],fill = cena_opcji))+ 
       geom_tile()+
       theme(plot.title = element_text(hjust = 0.5),
@@ -299,11 +316,28 @@ for (i in seq_along(my_list)) {
             panel.grid = element_blank(),
             panel.background = element_rect(fill = "white"),
             plot.background = element_rect(fill = "white"))+
-      scale_fill_viridis_c()+facet_wrap(~opcja)+
-      labs(title="Cena opcji call z podziałem",
-           subtitle = "na opcje amerykanskie i europejskie")
+      scale_fill_viridis_c()+
+      labs(title="Cena opcji",
+           subtitle = " europejskiej call")
+    
+    plot2<-subset(dane_mer) %>%
+      ggplot(aes(x=  .data[[pierwsza_zmienna]],y = .data[[druga_zmienna]],fill = roznica))+ 
+      geom_tile()+
+      theme(plot.title = element_text(hjust = 0.5),
+            plot.subtitle = element_text(hjust = 0.5),
+            legend.position = "bottom",
+            panel.grid = element_blank(),
+            panel.background = element_rect(fill = "white"),
+            plot.background = element_rect(fill = "white"))+
+      labs(title="Róznica wzgledna w cenie opcji call",
+           subtitle = "między opcją amerykanską i europejską")+
+      scale_fill_gradient(low = "beige", high = "forestgreen")
+    
+    g <- arrangeGrob(plot1, plot2, ncol = 2) #generates g
     substr(my_list_nazwy[[i]], 1, 1) <- "c"
-    ggsave(paste0(my_list_nazwy[[i]],".pdf"),path  = "./wykresy")
+    ggsave(paste0(my_list_nazwy[[i]],".pdf"),g,path  = "./wykresy",width = 12)
+    
+    
   }else{
     subset(dane,dane$wersja=="call"&dane$opcja=="a") %>%
       ggplot(aes(x=  .data[[pierwsza_zmienna]],y = .data[[druga_zmienna]],fill = cena_opcji))+ 
@@ -315,8 +349,8 @@ for (i in seq_along(my_list)) {
             panel.background = element_rect(fill = "white"),
             plot.background = element_rect(fill = "white"))+
       scale_fill_viridis_c()+
-      labs(title="Cena opcji call z podziałem",
-           subtitle = "na opcje amerykanskie i europejskie")
+      labs(title="Cena opcji call",
+           subtitle = "równa dla opcji amerykanskiej i europejskiej")
     substr(my_list_nazwy[[i]], 1, 1) <- "c"
     ggsave(paste0(my_list_nazwy[[i]],".pdf"),path  = "./wykresy")
     
