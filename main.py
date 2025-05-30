@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import matplotlib.ticker as ticker
 
-
+import sys
 
 @jit
 def policz_payoff_w_kazdej_chwili(n,u,d,S_0,K,wersja):
@@ -22,12 +22,11 @@ def policz_payoff_w_kazdej_chwili(n,u,d,S_0,K,wersja):
         do_u[:(i+1),i] = np.arange(i,-1,-1)
         do_d[:(i+1),i] = np.arange(i+1)
     m = np.triu(S_0*u**do_u*(d**do_d))
-
     # liczenie payoff
     if wersja == "call":
         return np.maximum(m-K,np.zeros((n + 1, n + 1)))
     else:
-        return np.triu(np.maximum(K-m,np.zeros((n + 1, n + 1))))
+        return np.maximum(K-m,np.zeros((n + 1, n + 1)))
 
 @jit
 def policz_cala_maciez(matrix_do_licz,c_p,r,t,p,opcja):
@@ -147,7 +146,7 @@ S_0 = np.array([50])
 r = np.array([0.02])
 K = np.array([48])
 T = np.array([2])
-policz_dane_i_zapisz(np.array([12]), np.array([0.6]), np.array([50]),np.array([0.3]), np.array([48]), np.arange(1,20,1))
+#policz_dane_i_zapisz(np.array([12]), np.array([0.6]), np.array([50]),np.array([0.3]), np.array([48]), np.arange(1,20,1))
 
 
 
@@ -177,13 +176,13 @@ wielokrotne = [O_t,Sigmas,S_0s,Rs,Ks,Ts]
 
 
 #dla wielu
-
-for i in [2,3,4,5]:
-    pass
-    co_liczymy = deepcopy(pojedyncze)
-    co_liczymy[1] = Sigmas
-    co_liczymy[i] = wielokrotne[i]
-    policz_dane_i_zapisz(co_liczymy[0], co_liczymy[1], co_liczymy[2], co_liczymy[3], co_liczymy[4], co_liczymy[5])
+# ===================================================================
+#for i in [2,3,4,5]:
+#    pass
+#    co_liczymy = deepcopy(pojedyncze)
+#    co_liczymy[1] = Sigmas
+#    co_liczymy[i] = wielokrotne[i]
+#    policz_dane_i_zapisz(co_liczymy[0], co_liczymy[1], co_liczymy[2], co_liczymy[3], co_liczymy[4], co_liczymy[5])
 
 #policz_dane_i_zapisz(O_t, Sigmas, S_0s, Rs, Ks, Ts)
 
@@ -246,7 +245,7 @@ def policz_delte(matrix_do_liczenia, cena_payoff, r, t, p, u, d, S_0, opcja):
 
             
             delta = (V_u - V_d) / (S_u - S_d)
-            delta = np.clip(delta, -1, 1)
+            #delta = np.clip(delta, -1, 1)
             B = exp(-r * t) * (p * V_u + q * V_d - delta * (p * S_u + q * S_d))
             
             # portfel replikującego
@@ -271,9 +270,12 @@ def policz_z_delta(odwr_t = 2, sigma = 0.3, S_0 = 50, r = 0.02, K = 48, T = 2, o
 
     matrix_do_liczenia = np.zeros((n+1, n+1))
     cena_payoff = policz_payoff_w_kazdej_chwili(n, u, d, S_0, K, wersja)
+
     matrix_do_liczenia[:, -1] = cena_payoff[:, -1]
 
     matrix, delty, cash = policz_delte(matrix_do_liczenia, cena_payoff, r, t, p, u, d, S_0, opcja)
+    #print(delty)
+    #sys.exit()
     dane = []
     for j in range(n+1):  # col ~ time
         czas = j * t
@@ -303,7 +305,7 @@ def narysuj_heatmape_delt(df):
     )
     ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f"{x:.1f}"))
     plt.title("Mapa ciepła wartości ∆ w czasie i lokacji na drzewie")
-    plt.xlabel("Czas (lata)")
+    plt.xlabel("Czas (Krok)")
     plt.ylabel("Poziom drzewa")
     plt.tight_layout()
     plt.savefig('test.png')
@@ -313,9 +315,13 @@ def narysuj_heatmape_delt(df):
 def narysuj_porownanie_delt_call_put(odwr_t=12, sigma=0.3, S_0=50, r=0.02, K=48, T=2, opcja="a"):
     df_call = policz_z_delta(odwr_t=odwr_t, sigma=sigma, S_0=S_0, r=r, K=K, T=T, opcja=opcja, wersja="call")
     df_put = policz_z_delta(odwr_t=odwr_t, sigma=sigma, S_0=S_0, r=r, K=K, T=T, opcja=opcja, wersja="put")
-
+    #print(df_call['delta'].to_string())
+    #print(df_put['delta'].to_string())
+    #sys.exit()
     pivot_call = df_call.pivot(index="poziom", columns="czas", values="delta")
     pivot_put = df_put.pivot(index="poziom", columns="czas", values="delta")
+    pivot_put = pivot_put.iloc[:, :-1]
+    pivot_call = pivot_call.iloc[:, :-1]
 
     fig, axs = plt.subplots(2, 1, figsize=(12, 10), sharex=True)
 
@@ -330,7 +336,7 @@ def narysuj_porownanie_delt_call_put(odwr_t=12, sigma=0.3, S_0=50, r=0.02, K=48,
     sns.heatmap(pivot_put, cmap="coolwarm", center=0, vmin=-1, vmax=1,
                 annot=False, cbar_kws={'label': 'Delta (put)'}, ax=axs[1])
     axs[1].set_title("Mapa ciepła ∆ – opcja PUT")
-    axs[1].set_xlabel("Czas (lata)")
+    axs[1].set_xlabel("Czas (Krok)")
     axs[1].set_ylabel("Poziom drzewa")
     axs[1].xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f"{x:.1f}"))
 
@@ -338,7 +344,72 @@ def narysuj_porownanie_delt_call_put(odwr_t=12, sigma=0.3, S_0=50, r=0.02, K=48,
     plt.savefig("wykres_delta.png")
     plt.show()
 
+
+
+#policz_z_delta(odwr_t=24,wersja="call")
+#policz_z_delta(wersja="put", opcja='a')
 #narysuj_heatmape_delt(policz_z_delta(wersja="put"))
 #narysuj_porownanie_delt_call_put()
 #print(policz_z_delta())
 #print(zbadaj_ile_liczy_srednio_wszystkie_mozliwosci([100,500,1000],0.03,50,0.02,48,2,N = 4))
+
+
+# ============================================== NOWE FUNKCJE DO HEDGINGU ==============================================
+def calculate_delta_matrix(S0, K, T, r, sigma, option_type="call", N=24):
+    dt = T / N
+    u = np.exp(sigma * np.sqrt(dt))
+    d = np.exp(-sigma * np.sqrt(dt))
+    p = (np.exp(r * dt) - d) / (u - d)
+    
+    stock_tree = np.zeros((N+1, N+1))
+    for i in range(N+1):
+        for j in range(i+1):
+            stock_tree[j, i] = S0 * (u ** (i - j)) * (d ** j)
+    
+    option_tree = np.zeros_like(stock_tree)
+    for j in range(N+1):
+        if option_type == "call":
+            option_tree[j, N] = max(stock_tree[j, N] - K, 0)
+        else:
+            option_tree[j, N] = max(K - stock_tree[j, N], 0)
+
+
+    for i in range(N-1, -1, -1):
+        for j in range(i+1):
+            option_tree[j, i] = np.exp(-r * dt) * (
+                p * option_tree[j, i+1] + (1 - p) * option_tree[j+1, i+1])
+
+    delta_matrix = np.full_like(option_tree, np.nan)
+    for i in range(N):
+        for j in range(i+1):
+            delta_matrix[j, i] = (
+                option_tree[j, i+1] - option_tree[j+1, i+1]
+            ) / (
+                stock_tree[j, i+1] - stock_tree[j+1, i+1]
+            )
+
+    return delta_matrix[:N, :N]  
+def plot_delta_heatmap(delta_matrix, _type = "CALL"):
+
+    c_map = 'coolwarm'
+    if _type == 'PUT':
+        c_map = 'coolwarm_r'
+     
+    title = "Mapa ciepła ∆ - Opcja " + _type 
+    plt.figure(figsize=(12, 6))
+    sns.heatmap(delta_matrix, cmap=c_map, annot=False, fmt=".2f")
+    plt.title(title)
+    plt.xlabel("Czas (Krok)")
+    plt.ylabel("Poziom drzewa")
+    plt.show()
+S0 = 50
+K = 48
+T = 2
+r = 0.02
+sigma = 0.3
+N = 24  
+
+opcyja = "CALL"
+
+delta_mat = calculate_delta_matrix(S0, K, T, r, sigma, option_type='call', N=N)
+plot_delta_heatmap(delta_mat, opcyja)
