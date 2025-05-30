@@ -302,12 +302,7 @@ for (i in seq_along(my_list)) {
   substr(my_list_nazwy[[i]], 1, 1) <- "p"
   ggsave(paste0(my_list_nazwy[[i]],".pdf"),path  = "./wykresy")
   if(czy_jest_r){
-    dane_mer <-merge(subset(dane,dane$wersja == "call"&dane$opcja == "a"),
-                     subset(dane,dane$wersja == "call"&dane$opcja == "e"), 
-                     by.x = c("sigma","S_0","K","T","r","odw_t","t","wersja"), 
-                     by.y =c("sigma","S_0","K","T","r","odw_t","t","wersja"))
-    dane_mer$roznica <- (dane_mer$cena_opcji.x-dane_mer$cena_opcji.y)/dane_mer$cena_opcji.y
-    plot1<-subset(dane,dane$wersja=="call"&dane$opcja == "e") %>%
+    subset(dane,dane$wersja=="call"&dane$opcja=="a") %>%
       ggplot(aes(x=  .data[[pierwsza_zmienna]],y = .data[[druga_zmienna]],fill = cena_opcji))+ 
       geom_tile()+
       theme(plot.title = element_text(hjust = 0.5),
@@ -317,25 +312,10 @@ for (i in seq_along(my_list)) {
             panel.background = element_rect(fill = "white"),
             plot.background = element_rect(fill = "white"))+
       scale_fill_viridis_c()+
-      labs(title="Cena opcji",
-           subtitle = " europejskiej call")
-    
-    plot2<-subset(dane_mer) %>%
-      ggplot(aes(x=  .data[[pierwsza_zmienna]],y = .data[[druga_zmienna]],fill = roznica))+ 
-      geom_tile()+
-      theme(plot.title = element_text(hjust = 0.5),
-            plot.subtitle = element_text(hjust = 0.5),
-            legend.position = "bottom",
-            panel.grid = element_blank(),
-            panel.background = element_rect(fill = "white"),
-            plot.background = element_rect(fill = "white"))+
-      labs(title="Róznica wzgledna w cenie opcji call",
-           subtitle = "między opcją amerykanską i europejską")+
-      scale_fill_gradient(low = "beige", high = "forestgreen")
-    
-    g <- arrangeGrob(plot1, plot2, ncol = 2) #generates g
+      labs(title="Cena opcji call",
+           subtitle = "praktycznie równa dla opcji amerykanskiej i europejskiej")
     substr(my_list_nazwy[[i]], 1, 1) <- "c"
-    ggsave(paste0(my_list_nazwy[[i]],".pdf"),g,path  = "./wykresy",width = 12)
+    ggsave(paste0(my_list_nazwy[[i]],".pdf"),path  = "./wykresy")
     
     
   }else{

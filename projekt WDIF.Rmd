@@ -5,6 +5,8 @@ subtitle: "Wstęp do Inżynierii Finansowej - Projekt"
 output:
   pdf_document:
     toc: true
+    keep_tex: true
+    latex_engine: xelatex  # lub lualatex (jeśli używasz Unicode)
   word_document:
     toc: false
   html_document:
@@ -19,6 +21,8 @@ library(ggplot2)
 require(gridExtra)
 library(grid)
 library(kableExtra)
+library(dplyr)
+library(tidyverse)
 ```
 
 
@@ -179,28 +183,50 @@ Podsumowanie dokonanych obserwacji rozpoczniemy od tych parametrów, dla któryc
 Na poniższym rysunku przedstawiono porównanie map ciepła wartości delty w czasie i pozycjach drzewa binarnego dla opcji typu call oraz put. Każdy z węzłów drzewa odpowiada konkretnej liczbie wzrostów ceny instrumentu bazowego  oraz momentowi w czasie (na osi X). Kolor w danym punkcie odzwierciedla wartość delty, czyli liczby akcji potrzebnej w portfelu zabezpieczającym, aby replikować wartość opcji.
 ```{r, echo=FALSE, out.width="85%", fig.align='center'}
 knitr::include_graphics("wykres_delta.png")
+```
 W przypadku opcji call obserwujemy, że delta rośnie wraz ze wzrostem ceny instrumentu bazowego i zbliża się do wartości 1 w górnych węzłach drzewa. Oznacza to, że gdy cena aktywa znacznie przewyższa cenę wykonania, portfel powinien zawierać prawie jedną akcję, aby skutecznie odwzorować zachowanie opcji.
 Z kolei w przypadku opcji put wartość delty maleje i przyjmuje wartości ujemne, szczególnie w dolnych gałęziach drzewa, gdzie cena aktywa jest niska. Jednak ze względu na to, że cena wykonania K w analizowanym przypadku nie jest znacznie wyższa od ceny początkowej S_{0}, opcja nie jest głęboko "in-the-money", dlatego delta nie osiąga pełnej wartości –1. Mimo to, zauważalna jest silna zależność: im niższa cena aktywa bazowego, tym większe (bardziej ujemne) wartości delty.
-Porównanie wykresów pozwala dostrzec symetrię między opcją call a put w kontekście ich wrażliwości na zmianę ceny instrumentu bazowego, co jest zgodne z teorią finansową. Wartości delty pozostają w oczekiwanych przedziałach: [0,1] dla call i [−1,0] dla put, co potwierdza poprawność implementacji modelu.
+Porównanie wykresów pozwala dostrzec symetrię między opcją call a put w kontekście ich wrażliwości na zmianę ceny instrumentu bazowego, co jest zgodne z teorią finansową. Wartości delty pozostają w oczekiwanych przedziałach: [0,1] dla call i [-1,0] dla put, co potwierdza poprawność implementacji modelu.
 
 
 *Rysunek 8. Drzewo wyceny dla opcji put wraz z wartościami delty w odpowiednich wierzchołkach.*
 
-W przypadku opcji typu put, jak w analizowanym przykładzie, wartości delty są zazwyczaj ujemne — oznacza to, że dla zreplikowania opcji inwestor powinien przyjąć pozycję krótką na akcjach. Można również zaobserwować, że delta maleje (czyli staje się bardziej ujemna) w sytuacjach spadków cen instrumentu bazowego. To zgodne z intuicją: im niższa cena akcji, tym większa wartość opcji put, co wymusza większe zabezpieczenie przez pozycję przeciwną. Wraz z upływem czasu, czyli w miarę zbliżania się do terminu wygaśnięcia opcji, wartości delty stają się bardziej ekstremalne — to znaczy bardziej zbliżają się do -1 lub 0. Jest to efektem rosnącej wrażliwości wartości opcji na zmiany ceny aktywa w ostatnich momentach życia opcji. Taka dynamika wymusza częstsze i bardziej znaczące dostosowania pozycji w portfelu, co pokazuje rosnące wyzwania związane z praktycznym stosowaniem strategii delta-hedgingu w końcowych etapach życia opcji.
+W przypadku opcji typu put, jak w analizowanym przykładzie, wartości delty są zazwyczaj ujemne — oznacza to, że dla zreplikowania opcji inwestor powinien przyjąć pozycję krótką na akcjach. Można również zaobserwować, że delta maleje (czyli staje się bardziej ujemna).w sytuacjach spadków cen instrumentu bazowego. To zgodne z intuicją: im niższa cena akcji, tym większa wartość opcji put, co wymusza większe zabezpieczenie przez pozycję przeciwną. Wraz z upływem czasu, czyli w miarę zbliżania się do terminu wygaśnięcia opcji, wartości delty stają się bardziej ekstremalne — to znaczy bardziej zbliżają się do -1 lub 0. Jest to efektem rosnącej wrażliwości wartości opcji na zmiany ceny aktywa w ostatnich momentach życia opcji. Taka dynamika wymusza częstsze i bardziej znaczące dostosowania pozycji w portfelu, co pokazuje rosnące wyzwania związane z praktycznym stosowaniem strategii delta-hedgingu w końcowych etapach życia opcji.
 
 # Dodatek: Implementacja modelu
 
-W tym dodatkowym podrozdziale zawieramy informacje techniczne dotyczące implementacji modelu wyceny dwumianowej. Uzyskane wyniki oparte były o funkcje napisane w języku *Python*. Dokładne szczegóły owych funkcji, jak i przypadki ich użycia zawieramy w poniższej tabeli.
+W tym dodatkowym podrozdziale zawieramy informacje techniczne dotyczące implementacji modelu wyceny dwumianowej. Uzyskane wyniki oparte były o funkcje napisane w języku *Python*. Dokładne szczegóły owych funkcji, jak i przypadki ich użycia zawieramy w poniższej tabeli.Dane do rysunków od 2 do 7 włącznie były generowane przez funkcje w pliku *main.py* oraz rysowane w pakiecie *R* w pliku *do_wykresow.R*. W tabeli podajemy nazwy funkcji generujących dane, bez nazw plików *.csv* ponieważ są one długie ale czytelne (np. *dane_odwr_t_12_sigma_0.3_S_0_50_r_0.02_K_od_30_do_79_T_2_.scv*). Dodatkowo niepodane parametry dla tych rysunków są "standerdowe dla tego zadania", tj. O_t = np.array([12]),Sigmas = np.array([0.3]),S_0 = np.array([50]),Rs = np.array([0.02]),Ks = np.array([48]),Ts = np.array([2]).
 
 
 ```{r, include=TRUE ,warning=FALSE, message=FALSE, echo=FALSE}
-do_zapisywania<-data.frame(matrix(ncol = 3,nrow = 3))
-colnames(do_zapisywania)<-c("nazwa pliku","nazwa funkcji","parametry")
-rownames(do_zapisywania)<-c("Wykres 1","Wykres 2","Wykres 3")
+nazwy_kolumn<-c("nazwa pliku","nazwa funkcji","parametry")
+nazwy_wierszy<-c("Rysunek 1","Rysunek 2 l","Rysunek 2 p","Rysunek 3 l",
+                 "Rysunek 3 p","Rysunek 4 l","Rysunek 4 p","Rysunek 5",
+                 "Rysunek 6","Rysunek 7","Rysunek 8")
+do_zapisywania<-data.frame(matrix(ncol = length(nazwy_kolumn),nrow = length(nazwy_wierszy)))
+colnames(do_zapisywania)<-nazwy_kolumn
+rownames(do_zapisywania)<-nazwy_wierszy
 do_zapisywania[1,]<-c("wyniki_zad1.csv","policz_i_zapisz_wyniki_zad1","n=1000,k=1000")
-do_zapisywania[2,]<-c("wyniki_zad2_n_1000.csv","read_numbers_and_save_p_values","n=1000")
-do_zapisywania[3,]<-c("wyniki_zad2_n_5000.csv","read_numbers_and_save_p_values","n=5000")
-kable(do_zapisywania)
+do_zapisywania[2,]<-c("-","policz_dane_i_zapisz","S_0s = np.arange(30, 80, 1)")
+do_zapisywania[3,]<-c("-","policz_dane_i_zapisz","Ks = np.arange(30, 80, 1)")
+do_zapisywania[4,]<-c("-","policz_dane_i_zapisz","Sigmas = np.arange(0.1, 0.66, 0.05)")
+do_zapisywania[5,]<-c("-","policz_dane_i_zapisz","Rs = np.arange(-0.03,0.2, 0.01)")
+do_zapisywania[6,]<-c("-","policz_dane_i_zapisz","np.arange(1,100,1)")
+do_zapisywania[7,]<-c("-","policz_dane_i_zapisz","np.arange(2, 100, 2)")
+do_zapisywania[8,]<-c("-","zbadaj_ile_liczy_srednio_wszystkie_mozliwosci","N = 1000,O_t = (np.arange(1,100,2),\n np.arange(100,500,10),np.arange(500,1000,50))")
+do_zapisywania[9,]<-c("-","policz_dane_i_zapisz","S_0s = np.arange(30, 80, 1), \nKs = np.arange(30, 80, 1)")
+do_zapisywania[10,]<-c("-","policz_dane_i_zapisz","Sigmas = np.arange(0.1, 0.66, 0.05),\n Rs = np.arange(-0.03,0.2, 0.01)")
+do_zapisywania[11,]<-c("-","read_numbers_and_save_p_values","n=5000")
+
+do_zapisywania[] <- lapply(do_zapisywania, function(x) gsub("_", "\\\\_", x))
+
+# Teraz to jest data.frame, można dalej używać mutate_all i kable
+do_zapisywania %>%
+  mutate_all(kableExtra::linebreak) %>%  # wymuszanie łamania w komórkach
+  kable(format = "latex", booktabs = TRUE, escape = FALSE, longtable = TRUE) %>%
+  kable_styling(latex_options = c("hold_position", "repeat_header"), font_size = 7) %>%
+  column_spec(3, width = "7cm", latex_valign = "m")%>%
+  row_spec(0:nrow(do_zapisywania), hline_after = TRUE) 
 
 ```
 
