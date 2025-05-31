@@ -233,6 +233,7 @@ knitr::include_graphics("wykresy/wykres_delta_put.png")
 
 W przypadku opcji typu put, jak w analizowanym przykładzie, wartości delty są zazwyczaj ujemne — oznacza to, że dla zreplikowania opcji inwestor powinien przyjąć pozycję krótką na akcjach. Można również zaobserwować, że delta maleje (czyli staje się bardziej ujemna). w sytuacjach spadków cen instrumentu bazowego. To zgodne z intuicją: im niższa cena akcji, tym większa wartość opcji put, co wymusza większe zabezpieczenie przez pozycję przeciwną. Wraz z upływem czasu, czyli w miarę zbliżania się do terminu wygaśnięcia opcji, wartości delty stają się bardziej ekstremalne — to znaczy bardziej zbliżają się do $-1$ lub $0$. Jest to efektem rosnącej wrażliwości wartości opcji na zmiany ceny aktywa w ostatnich momentach życia opcji. Taka dynamika wymusza częstsze i bardziej znaczące dostosowania pozycji w portfelu, co pokazuje rosnące wyzwania związane z praktycznym stosowaniem strategii delta-hedgingu w końcowych etapach życia opcji.
 
+\newpage
 # Dodatek: Tabela wykonania funkcji i link do repozytorium 
 
 [Link do repozytorium-github](https://github.com/Jankozlowski1234/wdif_projekt)
