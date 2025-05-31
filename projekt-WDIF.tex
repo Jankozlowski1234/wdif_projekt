@@ -1,6 +1,7 @@
 % Options for packages loaded elsewhere
 \PassOptionsToPackage{unicode}{hyperref}
 \PassOptionsToPackage{hyphens}{url}
+\PassOptionsToPackage{dvipsnames,svgnames,x11names}{xcolor}
 %
 \documentclass[
 ]{article}
@@ -34,6 +35,16 @@
 \makeatother
 \usepackage{xcolor}
 \usepackage[margin=1in]{geometry}
+\usepackage{longtable,booktabs,array}
+\usepackage{calc} % for calculating minipage widths
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
 \usepackage{graphicx}
 \makeatletter
 \def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
@@ -74,7 +85,11 @@
 \hypersetup{
   pdftitle={Wycena oraz analiza opcji amerykańskich i europejskich w modelu dwumianowym},
   pdfauthor={Tomasz Kąkol, Jan Kozłowski, Aleksander Walis},
-  hidelinks,
+  colorlinks=true,
+  linkcolor={Maroon},
+  filecolor={Maroon},
+  citecolor={Blue},
+  urlcolor={blue},
   pdfcreator={LaTeX via pandoc}}
 
 \title{Wycena oraz analiza opcji amerykańskich i europejskich w modelu
@@ -94,6 +109,7 @@ dwumianowym}
 
 \renewcommand*\contentsname{Spis treści}
 {
+\hypersetup{linkcolor=}
 \setcounter{tocdepth}{2}
 \tableofcontents
 }
@@ -223,6 +239,10 @@ obowiązuje on w przypadku opcji amerykańskich. Ze względu na możliwość
 wcześniejszego wykonania opcji relacja między cenami opcjami obu typów
 jest znacznie bardziej skomplikowana.
 
+\hypertarget{poruxf3wnanie-rozwaux17canych-opcji-amerykaux144skich-i-europejskich}{%
+\subsection{Porównanie rozważanych opcji amerykańskich i
+europejskich}\label{poruxf3wnanie-rozwaux17canych-opcji-amerykaux144skich-i-europejskich}}
+
 Zwróćmy jednak uwagę na pewną ciekawą prawidłowość - wartość opcji
 europejskiej typu call jest równa wartości opcji amerykańskiej typu
 call. Początkowo może się wydawać, że jest to zwykły przypadek
@@ -259,6 +279,8 @@ ograniczony!) od jego wzrostu w rozważanym przez nas modelu.
 Przyjrzyjmy się teraz optymalnym momentom wykonania opcji put oraz
 różnicy między wartościami amerykańskich i europejskich opcji put dla
 rozważanych parametrów. Obie rzeczy przedstawiają poniższe ilustracje.
+
+\begin{center}\includegraphics[width=0.75\linewidth,trim=0 10 0 10,clip]{wykresy/wykres} \end{center}
 
 \emph{Rysunek 1. Drzewa wyceny opcji amerykańskich typu put. Rysunek po
 lewej zawiera drzewo z momentami optymalnego wykonania opcji, gdzie
@@ -328,6 +350,8 @@ uzyskane wyceny opcji call i put na chwilę zero (podzielone ze względu
 na rodzaj opcji: a - amerykański, e - europejski), w zależności od
 wartości wspomnianych parametrów.
 
+\begin{center}\includegraphics[width=0.4\linewidth]{wykresy/d_r_S0} \includegraphics[width=0.4\linewidth]{wykresy/d_r_K} \end{center}
+
 \emph{Rysunek 2. Wykres wartości opcji call i put w chwili zero w
 zależności od wartości parametrów \(S_0\) i \(K\).}
 
@@ -362,6 +386,8 @@ wcześniej zaprezentowanym wartościom. Na poniższych wykresach
 przedstawiamy uzyskane wyceny opcji call i put na chwilę zero
 (podzielone ze względu na rodzaj opcji: a - amerykański, e -
 europejski), w zależności od wartości wspomnianych parametrów.
+
+\begin{center}\includegraphics[width=0.4\linewidth]{wykresy/d_r_s} \includegraphics[width=0.4\linewidth]{wykresy/d_r_r} \end{center}
 
 \emph{Rysunek 3. Wykres wartości opcji call i put w chwili zero w
 zależności od wartości parametrów \(\sigma\) i \(r\).}
@@ -416,6 +442,8 @@ przedstawiamy uzyskane wyceny opcji call i put na chwilę zero
 (podzielone ze względu na rodzaj opcji: a - amerykański, e -
 europejski), w zależności od wartości wspomnianych parametrów.
 
+\begin{center}\includegraphics[width=0.4\linewidth]{wykresy/d_r_T} \includegraphics[width=0.4\linewidth]{wykresy/d_r_ot} \end{center}
+
 \emph{Rysunek 4. Wykres wartości opcji call i put w chwili zero w
 zależności od wartości parametrów \(T\) i \(\Delta t\).}
 
@@ -430,7 +458,23 @@ różnica nie występowała w przypadku zmian innych parametrów.
 Interesująca jest również dokładna zmienność wartość wyceny opcji
 europejskiej typu put - początkowo wzrasta wraz ze wzrostem parametru
 \(T\), a następnie maleje; zauważmy jednak, że rozważamy naprawdę duże
-wartości parametru \(T\), raczej nie spotykane w praktyce.
+wartości parametru \(T\), raczej nie spotykane w praktyce. Jednak
+ppodobnie niecodzienny kształt możemy uzyskać dla mniejszych \(T\), gdy
+zwiększymy ``chaotyczność'' rynku, tzn. zmieniając parametry na
+\(\sigma = 0.6,r = 0.3\)
+
+\begin{center}\includegraphics[width=0.4\linewidth]{wykresy/d_r_T_dzikie} \end{center}
+
+\emph{Rysunek 5. Wykres wartości opcji call i put w chwili zero w
+zależności od wartości parametrów \(T\), dla większych parametrów \(r\)
+i \(\sigma\).}
+
+Widzimy, że w tym przypadku cena opcji europejskiej put również maleje.
+Możliwym wytłumaczeniem jest bardzo wysoka stopa wolna od ryzyka: z
+opcji put możemy dostać maksymalnie \(K\) (nominalnie, w momencie
+\(T\)), więc jeśli czynnik dyskontujący jest duży, a w naszym przypadku
+mamy \(e^{-0.3*10}\approx 0.049\), więc maksymalny zysk na chwilę
+\(T_0\) jest mały, stąd i mała cena opcji
 
 Przeanalizujmy teraz wpływ parametru \(\Delta t\). Jak widzimy na obu
 wykresach, zmienność w uzyskanej wycenie jest bardzo niewielka,
@@ -444,7 +488,9 @@ Poniższy wykres przedstawia uzyskane średnie (obliczone na podstawie 100
 powtórzeń) czasy wykonania algorytmu dokonującego wyceny opcji obu typów
 i obu rodzajów.
 
-\emph{Rysunek 5. Wykres średniego (obliczonego na podstawie 100
+\begin{center}\includegraphics[width=0.4\linewidth]{wykresy/sredni_czas} \end{center}
+
+\emph{Rysunek 6. Wykres średniego (obliczonego na podstawie 1000
 powtórzeń) czasu wykonania algorytmu dokonującego wyceny modelem dla
 opcji danego typu i rodzaju w zależności od wartości parametru
 \(\Delta t\) (oś pozioma przedstawiająca parametr \(\Delta t\) zawiera
@@ -453,7 +499,7 @@ jego odwrotności, posortowana rosnąco względem tych odwrotności).}
 Pomimo pewnych odchyleń dostrzegamy wyraźny kwadratowy wzrost, wraz ze
 wzrostem odwrotności parametru \(\Delta t\) (dla każdego typu i rodzaju
 opcji). Oczywiście, uzyskane średnie czasy nawet dla
-\(\Delta t = 1/300\) nie są wysokie, jednak w sytuacji dynamicznej
+\(\Delta t = 1/1000\) nie są wysokie, jednak w sytuacji dynamicznej
 wyceny nawet kilkuset opcji czas wykonania takiego algorytmu byłby już
 znaczący.
 
@@ -480,7 +526,9 @@ wykresach przedstawiamy uzyskane wyceny opcji call i put na chwilę zero
 (podzielone ze względu na rodzaj opcji: a - amerykański, e - europejski)
 w formie heatmapy, w zależności od wartości wspomnianych parametrów.
 
-\emph{Rysunek 6. Wykres wartości opcji call i put w chwili zero w
+\begin{center}\includegraphics[width=0.45\linewidth]{wykresy/c_r_S0_r_K} \includegraphics[width=0.45\linewidth]{wykresy/p_r_S0_r_K} \end{center}
+
+\emph{Rysunek 7. Wykres wartości opcji call i put w chwili zero w
 zależności od równoczesnej zmiany wartości parametrów \(S_0\) i \(K\).}
 
 Na początku zajmimy się przypadkami opcji call - zarówno dla
@@ -507,7 +555,9 @@ uzyskane wyceny opcji call i put na chwilę zero (podzielone ze względu
 na rodzaj opcji: a - amerykański, e - europejski) w formie heatmapy, w
 zależności od wartości wspomnianych parametrów.
 
-\emph{Rysunek 7. Wykres wartości opcji call i put w chwili zero w
+\begin{center}\includegraphics[width=0.45\linewidth]{wykresy/c_r_s_r_r} \includegraphics[width=0.45\linewidth]{wykresy/p_r_s_r_r} \end{center}
+
+\emph{Rysunek 8. Wykres wartości opcji call i put w chwili zero w
 zależności od równoczesnej zmiany wartości parametrów \(\sigma\) i
 \(r\).}
 
@@ -532,6 +582,18 @@ amerykańskich względem opcji europejskich -- jest to oczywiście
 konsekwencja możliwości wcześniejszego wykonania, która w przypadku
 opcji put może być korzystna, w szczególności przy niskim poziomie stóp
 procentowych i wysokiej zmienności.
+
+\begin{center}\includegraphics[width=0.45\linewidth]{wykresy/c_r_r_r_T} \includegraphics[width=0.45\linewidth]{wykresy/p_r_r_r_T} \end{center}
+
+\emph{Rysunek 9. Wykres wartości opcji call i put w chwili zero w
+zależności od równoczesnej zmiany wartości parametrów \(r\) i \(T\)}
+
+Patrząc na poziomice ceny opcji call w zależności od \(T\) oraz \(r\)
+możmy zauważyć kształt podobny do hiperboli. Przypominając sobie wzór na
+parytet call-put \[C-P-S_0 = -Ke^{-rT},\] Widzimy, że jeśli \(rT\) jest
+stały, to również różnica \(C-P\) jest stała. Więc jeśli wartość \(P\)
+nie zmienia się znacząco, to również taka zależność będzie zachodzić dla
+ceny opcji call
 
 \hypertarget{podsumowanie}{%
 \subsection{Podsumowanie}\label{podsumowanie}}
@@ -568,16 +630,55 @@ kontrolujący czas mijający w trakcie jednego kroku w drzewie wyceny
 (oraz liczbę wierzchołków w owym drzewie) ma bardzo niewielki, wręcz
 znikomy wpływ na uzyskaną wartość opcji.
 
+Obserwacje z powyższego akapitu przedstawiamy w uproszczonej formie w
+poniższej tabeli.
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.2500}}@{}}
+\toprule()
+\begin{minipage}[b]{\linewidth}\raggedright
+Parametr
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Wpływ na wartość opcji call przy wzroście parametru (poziom wpływu)
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Wpływ na wartość opcji call przy wzroście parametru (poziom wpływu)
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Ryzyko związane z błędnym wyznaczeniem
+\end{minipage} \\
+\midrule()
+\endhead
+\(S_0\) - Początkowa cena aktywa bazowego & dodatni (wysoki) & ujemny
+(wysoki) & niskie/średnie \\
+\(K\) - Cena wykonania opcji & ujemny (wysoki) & dodatni (wysoki) &
+znikome \\
+\(\sigma\) - Zmienność ceny aktywa bazowego & dodatni (średni) & dodatni
+(średni) & wysokie \\
+\(r\) - Stopa procentowa bez ryzyka & dodatni (średni) & ujemny (średni)
+& niskie/średnie \\
+\(T\) - Czas do wygaśnięcia opcji & dodatni (wysoki) & dodatni (średni)
+& znikome \\
+\(\Delta t\) - Długość kroku w modelu & znikomy & znikomy & - \\
+\bottomrule()
+\end{longtable}
+
 \hypertarget{analiza-skux142adu-portfela-zabezpieczajux105cego}{%
 \section{Analiza składu portfela
 zabezpieczającego}\label{analiza-skux142adu-portfela-zabezpieczajux105cego}}
 
-Na poniższym rysunku przedstawiono porównanie map ciepła wartości delty
-w czasie i pozycjach drzewa binarnego dla opcji typu call oraz put.
-Każdy z węzłów drzewa odpowiada konkretnej liczbie wzrostów ceny
+Na poniższych rysunkach przedstawiono porównanie map ciepła wartości
+delty w czasie i pozycjach drzewa binarnego dla opcji typu call oraz
+put. Każdy z węzłów drzewa odpowiada konkretnej liczbie wzrostów ceny
 instrumentu bazowego oraz momentowi w czasie (na osi X). Kolor w danym
 punkcie odzwierciedla wartość delty, czyli liczby akcji potrzebnej w
 portfelu zabezpieczającym, aby replikować wartość opcji.
+
+\begin{center}\includegraphics[width=0.75\linewidth]{wykresy/wykres_delta_call} \end{center}
+
+\emph{Rysunek 10. Drzewo wyceny dla opcji call wraz z wartościami delty
+w odpowiednich wierzchołkach.}
 
 W przypadku opcji call obserwujemy, że delta rośnie wraz ze wzrostem
 ceny instrumentu bazowego i zbliża się do wartości 1 w górnych węzłach
@@ -586,47 +687,50 @@ wykonania, portfel powinien zawierać prawie jedną akcję, aby skutecznie
 odwzorować zachowanie opcji. Z kolei w przypadku opcji put wartość delty
 maleje i przyjmuje wartości ujemne, szczególnie w dolnych gałęziach
 drzewa, gdzie cena aktywa jest niska. Jednak ze względu na to, że cena
-wykonania K w analizowanym przypadku nie jest znacznie wyższa od ceny
-początkowej S\_\{0\}, opcja nie jest głęboko ``in-the-money'', dlatego
-delta nie osiąga pełnej wartości --1. Mimo to, zauważalna jest silna
-zależność: im niższa cena aktywa bazowego, tym większe (bardziej ujemne)
-wartości delty. Porównanie wykresów pozwala dostrzec symetrię między
-opcją call a put w kontekście ich wrażliwości na zmianę ceny instrumentu
-bazowego, co jest zgodne z teorią finansową. Wartości delty pozostają w
-oczekiwanych przedziałach: {[}0,1{]} dla call i {[}-1,0{]} dla put, co
-potwierdza poprawność implementacji modelu.
+wykonania \(K\) w analizowanym przypadku nie jest znacznie wyższa od
+ceny początkowej \(S_{0}\), opcja nie jest głęboko ``in-the-money'',
+dlatego delta nie osiąga pełnej wartości \(–1\). Mimo to, zauważalna
+jest silna zależność: im niższa cena aktywa bazowego, tym większe
+(bardziej ujemne) wartości delty. Porównanie wykresów pozwala dostrzec
+symetrię między opcją call a put w kontekście ich wrażliwości na zmianę
+ceny instrumentu bazowego, co jest zgodne z teorią finansową. Wartości
+delty pozostają w oczekiwanych przedziałach: \([0,1]\) dla call i
+\([-1,0]\) dla put, co potwierdza poprawność implementacji modelu.
 
-\emph{Rysunek 8. Drzewo wyceny dla opcji put wraz z wartościami delty w
+\begin{center}\includegraphics[width=0.75\linewidth]{wykresy/wykres_delta_put} \end{center}
+
+\emph{Rysunek 11. Drzewo wyceny dla opcji put wraz z wartościami delty w
 odpowiednich wierzchołkach.}
 
 W przypadku opcji typu put, jak w analizowanym przykładzie, wartości
 delty są zazwyczaj ujemne --- oznacza to, że dla zreplikowania opcji
 inwestor powinien przyjąć pozycję krótką na akcjach. Można również
-zaobserwować, że delta maleje (czyli staje się bardziej ujemna).w
+zaobserwować, że delta maleje (czyli staje się bardziej ujemna). w
 sytuacjach spadków cen instrumentu bazowego. To zgodne z intuicją: im
 niższa cena akcji, tym większa wartość opcji put, co wymusza większe
 zabezpieczenie przez pozycję przeciwną. Wraz z upływem czasu, czyli w
 miarę zbliżania się do terminu wygaśnięcia opcji, wartości delty stają
-się bardziej ekstremalne --- to znaczy bardziej zbliżają się do -1 lub
-0. Jest to efektem rosnącej wrażliwości wartości opcji na zmiany ceny
-aktywa w ostatnich momentach życia opcji. Taka dynamika wymusza częstsze
-i bardziej znaczące dostosowania pozycji w portfelu, co pokazuje rosnące
-wyzwania związane z praktycznym stosowaniem strategii delta-hedgingu w
-końcowych etapach życia opcji.
+się bardziej ekstremalne --- to znaczy bardziej zbliżają się do \(-1\)
+lub \(0\). Jest to efektem rosnącej wrażliwości wartości opcji na zmiany
+ceny aktywa w ostatnich momentach życia opcji. Taka dynamika wymusza
+częstsze i bardziej znaczące dostosowania pozycji w portfelu, co
+pokazuje rosnące wyzwania związane z praktycznym stosowaniem strategii
+delta-hedgingu w końcowych etapach życia opcji.
 
-\hypertarget{dodatek-implementacja-modelu}{%
-\section{Dodatek: Implementacja
-modelu}\label{dodatek-implementacja-modelu}}
+\hypertarget{dodatek-tabela-wykonania-funkcji-i-link-do-repozytorium}{%
+\section{Dodatek: Tabela wykonania funkcji i link do
+repozytorium}\label{dodatek-tabela-wykonania-funkcji-i-link-do-repozytorium}}
+
+\href{https://github.com/Jankozlowski1234/wdif_projekt}{Link do
+repozytorium-github}
 
 W tym dodatkowym podrozdziale zawieramy informacje techniczne dotyczące
 implementacji modelu wyceny dwumianowej. Uzyskane wyniki oparte były o
-funkcje napisane w języku \emph{Python}. Dokładne szczegóły owych
-funkcji, jak i przypadki ich użycia zawieramy w poniższej tabeli.Dane do
-rysunków od 2 do 7 włącznie były generowane przez funkcje w pliku
-\emph{main.py} oraz rysowane w pakiecie \emph{R} w pliku
-\emph{do\_wykresow.R}. W tabeli podajemy nazwy funkcji generujących
-dane, bez nazw plików \emph{.csv} ponieważ są one długie ale czytelne
-(np.
+funkcje napisane w języku \emph{Python}.Dane do rysunków od 2 do 7
+włącznie były generowane przez funkcje w pliku \emph{main.py} oraz
+rysowane w pakiecie \emph{R} w pliku \emph{do\_wykresow.R}. W tabeli
+podajemy nazwy funkcji generujących dane, bez nazw plików \emph{.csv}
+ponieważ są one długie ale czytelne (np.
 \emph{dane\_odwr\_t\_12\_sigma\_0.3\_S\_0\_50\_r\_0.02\_K\_od\_30\_do\_79\_T\_2\_.scv}).
 Dodatkowo niepodane parametry dla tych rysunków są ``standerdowe dla
 tego zadania'', tj. O\_t = np.array({[}12{]}),Sigmas =
@@ -651,7 +755,7 @@ np.array({[}0.02{]}),Ks = np.array({[}48{]}),Ts = np.array({[}2{]}).
 \endfoot
 \bottomrule
 \endlastfoot
-Rysunek 1 & wyniki\_zad1.csv & policz\_i\_zapisz\_wyniki\_zad1 & n=1000,k=1000\\
+Rysunek 1 & - & - & -\\
 \midrule
 Rysunek 2 l & - & policz\_dane\_i\_zapisz & S\_0s = np.arange(30, 80, 1)\\
 \midrule
@@ -662,18 +766,24 @@ Rysunek 3 l & - & policz\_dane\_i\_zapisz & Sigmas = np.arange(0.1, 0.66, 0.05)\
 Rysunek 3 p & - & policz\_dane\_i\_zapisz & Rs = np.arange(-0.03,0.2, 0.01)\\
 \midrule
 \addlinespace
-Rysunek 4 l & - & policz\_dane\_i\_zapisz & np.arange(1,100,1)\\
+Rysunek 4 l & - & policz\_dane\_i\_zapisz & Ts = np.arange(1,100,1)\\
 \midrule
-Rysunek 4 p & - & policz\_dane\_i\_zapisz & np.arange(2, 100, 2)\\
+Rysunek 4 p & - & policz\_dane\_i\_zapisz & O\_t = np.arange(2, 100, 2)\\
 \midrule
-Rysunek 5 & - & zbadaj\_ile\_liczy\_srednio\_wszystkie\_mozliwosci & \makecell[c]{N = 1000,O\_t = (np.arange(1,100,2),\\ np.arange(100,500,10),np.arange(500,1000,50))}\\
+Rysunek 5 & - & policz\_dane\_i\_zapisz & \makecell[c]{Ts = np.arange(1,20,1),Rs = np.array([0.3]), \\ Sigmas = np.array([0.6])}\\
 \midrule
-Rysunek 6 & - & policz\_dane\_i\_zapisz & S\_0s = np.arange(30, 80, 1),Ks = np.arange(30, 80, 1)\\
+Rysunek 6 & - & zbadaj\_ile\_liczy\_srednio\_wszystkie\_mozliwosci & \makecell[r]{N = 1000,\\ O\_t = (np.arange(1,100,2),\\ np.arange(100,500,10),np.arange(500,1000,50))}\\
 \midrule
-Rysunek 7 & - & policz\_dane\_i\_zapisz & \makecell[l]{Sigmas = np.arange(0.1, 0.66, 0.05),\\ Rs = np.arange(-0.03,0.2, 0.01)}\\
+Rysunek 7 & - & policz\_dane\_i\_zapisz & \makecell[l]{S\_0s = np.arange(30, 80, 1), \\Ks = np.arange(30, 80, 1)}\\
 \midrule
 \addlinespace
-Rysunek 8 & - & read\_numbers\_and\_save\_p\_values & n=5000\\
+Rysunek 8 & - & policz\_dane\_i\_zapisz & \makecell[c]{Sigmas = np.arange(0.1, 0.66, 0.05),\\ Rs = np.arange(-0.03,0.2, 0.01)}\\
+\midrule
+Rysunek 9 & - & policz\_dane\_i\_zapisz & \makecell[r]{Ts = np.arange(1,100,1),\\                       \\ Rs = np.arange(-0.03,0.2, 0.01)}\\
+\midrule
+Rysunek 10 & - & plot\_delta\_heatmap & opcyja = 'CALL'\\
+\midrule
+Rysunek 11 & - & plot\_delta\_heatmap & opcyja = 'PUT'\\
 \midrule*
 \end{longtable}
 \endgroup{}

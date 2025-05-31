@@ -19,7 +19,7 @@ ggsave("sredni_czas.pdf",path  = "./wykresy")
 
 d_r_ot<-read.csv("./dane/dane_odwr_t_od_2_do_98_sigma_0.3_S_0_50_r_0.02_K_48_T_2_.csv",
                 header = T,sep = ",")
-d_r_s<-read.csv("./dane/dane_odwr_t_12_sigma_od_0.1_do0.6500000000000001_S_0_od_30_do_79_r_0.02_K_48_T_2_.csv",
+d_r_s<-read.csv("./dane/dane_odwr_t_12_sigma_od_0.1_do0.6500000000000001_S_0_50_r_0.02_K_48_T_2_.csv",
                 header = T,sep = ",")
 d_r_S0<-read.csv("./dane/dane_odwr_t_12_sigma_0.3_S_0_od_30_do_79_r_0.02_K_48_T_2_.csv",
                  header = T,sep = ",")
@@ -180,7 +180,7 @@ subset(d_r_T_inne) %>%
        subtitle = "z podziałem na opcje amerykańskie i europejskie(r=0.3, sigma = 0.6)")+
   theme(plot.title = element_text(hjust = 0.5),
         plot.subtitle = element_text(hjust = 0.5))+facet_wrap(~wersja)
-ggsave("d_r_T_dzikie.pdf",path  = "./wykresy")
+ggsave("d_r_T_dzikie.pdf",path  = "./wykresy",width = 6)
 
 
 
