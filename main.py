@@ -411,5 +411,161 @@ N = 24
 
 opcyja = "CALL"
 
-delta_mat = calculate_delta_matrix(S0, K, T, r, sigma, option_type='call', N=N)
-plot_delta_heatmap(delta_mat, opcyja)
+def heatmap_wartosc_akcji(odwr_t = 2, sigma = 0.3, S_0 = 50, r = 0.02, K = 48, T = 2, opcja = "a", wersja = "call"):
+    t = 1 / odwr_t
+    n = int(T * odwr_t)
+    u = exp(sigma * sqrt(t))
+    d = exp(-sigma * sqrt(t))
+    p = (exp(r * t) - d) / (u - d)
+
+    matrix_do_liczenia = np.zeros((n+1, n+1))
+    cena_payoff = policz_payoff_w_kazdej_chwili(n, u, d, S_0, K, wersja)
+    matrix_do_liczenia[:, -1] = cena_payoff[:, -1]
+    matrix, delty, cash = policz_delte(matrix_do_liczenia, cena_payoff, r, t, p, u, d, S_0, opcja)
+    plt.imshow(matrix,cmap='hot', interpolation='nearest')
+    plt.colorbar()
+    plt.title('mapa')
+    plt.show()
+
+
+#heatmap_wartosc_akcji(T=24)
+
+
+#delta_mat = calculate_delta_matrix(S0, K, T, r, sigma, option_type='call', N=N)
+#plot_delta_heatmap(delta_mat, opcyja)
+def option_value_tree(S0, K, T, r, sigma, N=24, option_type="call", american=False):
+    dt = T / N
+    u = np.exp(sigma * np.sqrt(dt))
+    d = np.exp(-sigma * np.sqrt(dt))
+    p = (np.exp(r * dt) - d) / (u - d)
+    
+    # Drzewo cen akcji
+    stock_tree = np.zeros((N+1, N+1))
+    for i in range(N+1):
+        for j in range(i+1):
+            stock_tree[j, i] = S0 * (u ** (i - j)) * (d ** j)
+
+    # Drzewo wartości opcji
+    option_tree = np.zeros_like(stock_tree)
+    for j in range(N+1):
+        if option_type == "call":
+            option_tree[j, N] = max(stock_tree[j, N] - K, 0)
+        else:
+            option_tree[j, N] = max(K - stock_tree[j, N], 0)
+
+    # Wsteczna rekurencja
+    for i in range(N-1, -1, -1):
+        for j in range(i+1):
+            hold = np.exp(-r * dt) * (
+                p * option_tree[j, i+1] + (1 - p) * option_tree[j+1, i+1]
+            )
+            if option_type == "call":
+                exercise = stock_tree[j, i] - K
+            else:
+                exercise = K - stock_tree[j, i]
+            if american:
+                option_tree[j, i] = max(hold, exercise)
+            else:
+                option_tree[j, i] = hold
+
+    return option_tree[:N+1, :N+1]
+
+def plot_option_value_heatmap(option_tree, title="Option Value Heatmap (Call)"):
+    mask = np.full_like(option_tree, True, dtype=bool)
+    for i in range(option_tree.shape[1]):
+        mask[:i+1, i] = False  # tylko istniejące węzły odmaskować
+
+    plt.figure(figsize=(12, 6))
+    sns.heatmap(option_tree, mask=mask, cmap="viridis", annot=False)
+    plt.title(title)
+    plt.xlabel("Time step")
+    plt.ylabel("Down moves")
+    plt.show()
+
+S0 = 50
+K = 48
+T = 2
+r = 0.02
+sigma = 0.3
+N = 24
+#plot_delta_heatmap(option_value_tree(50,48,2,0.02,0.3, american=True, option_type="call"))
+
+
+import numpy as np
+import math
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+
+
+
+
+def american_call_binomial_tree(S0, K, T, r, sigma, dt, _type="call", op ='A'):
+    N = int(T / dt)
+    u = np.exp(sigma * np.sqrt(dt))
+    d = 1 / u
+    q = (np.exp(r * dt) - d) / (u - d)
+    discount = np.exp(-r * dt)
+
+    S = np.zeros((N + 1, N + 1))
+    V = np.zeros((N + 1, N + 1))
+
+    for i in range(N + 1):
+        for j in range(i + 1):
+            S[j][i] = S0 * (u ** (i - j)) * (d ** j)
+
+    for j in range(N + 1):
+        if _type == 'put':
+            V[j][N] = max(K - S[j][N], 0)  
+        else:
+            V[j][N] = max(S[j][N] - K, 0)
+
+    for i in reversed(range(N)):
+        for j in range(i + 1):
+            continuation = discount * (q * V[j][i + 1] + (1 - q) * V[j + 1][i + 1])
+            intrinsic = 0
+            if _type == 'put':
+                intrinsic = max(K-S[j][i], 0)
+            else:
+                intrinsic = max(S[j][i] - K, 0)
+            
+            if op == 'E':
+                V[j][i] = continuation
+            else:
+                V[j][i] = max(intrinsic, continuation)
+    return V
+
+S0 = 50      
+K = 48       
+T = 2        
+r = 0.02    
+sigma = 0.3 
+dt = 1/12    
+
+V = american_call_binomial_tree(S0, K, T, r, sigma, dt, _type='put', op='E')
+N = int(T / dt)
+
+
+heatmap_data = np.full((N + 1, N + 1), np.nan)
+for i in range(N + 1):      
+    for j in range(i + 1):  
+        heatmap_data[j, i] = V[j, i]
+
+
+plt.figure(figsize=(12, 8))
+sns.heatmap(
+    heatmap_data,
+    annot=True, 
+    fmt=".2f",   
+    cmap="viridis",
+    cbar_kws={'label': 'Wartość opcji'},
+    mask=np.isnan(heatmap_data)
+)
+plt.title("Heatmapa wartości europejskiej opcji PUT w czasie")
+plt.xlabel("Czas (krok)")
+plt.ylabel("Liczba spadków ceny (poziom w drzewie)")
+#plt.gca().invert_yaxis()
+plt.tight_layout()
+plt.show()
+
+
